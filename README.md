@@ -108,10 +108,12 @@ s = model(x, context=context, mode="sequential").states
 print((p - s).abs().max())
 ```
 
-## Implemented in v0.1
+## Implemented through v0.2
 
 - dense/block/diagonal affine operator composition
-- differentiable Hillis-Steele parallel scan
+- differentiable work-efficient Blelloch parallel scan (`O(T)` compositions, `O(log T)` depth)
+- Hillis-Steele scan retained as a reference backend
+- opt-in `torch.compile` scan wrapper
 - sequential reference recurrence
 - block-local trainable long-term substrate `W`
 - dynamic Route and Hold controls
@@ -121,11 +123,30 @@ print((p - s).abs().max())
 - predict-correct state-conditioned refinement model
 - Route/Hold policy-anchor buffer
 - correctness and gradient-equivalence tests
-- delayed-memory example and scan microbenchmark
+- delayed-memory example and configurable scan microbenchmark
+- long-horizon stability diagnostics and v0.2 kernel report
+
+## v0.2 parallelization status
+
+FlowCore now uses a work-efficient Blelloch scan by default.  For power-of-two
+sequence length `T`, the tree performs `3T-2` affine compositions, versus the
+`O(T log T)` work of the v0.1 Hillis-Steele implementation.  The test suite
+checks state and gradient equivalence against serial recurrence.
+
+`torch.compile` is available through `make_compiled_scan()` and the benchmark
+script can compare sequential, Hillis-Steele, Blelloch and compiled Blelloch
+execution.  CPU smoke results are documented in
+[`docs/V0_2_REPORT.md`](docs/V0_2_REPORT.md); CUDA results are still required
+before making general performance claims.
+
+```bash
+python benchmarks/benchmark_scan.py --device auto --lengths 128,512,2048
+python experiments/stability_sweep.py --lengths 128,512,2048
+```
 
 ## Deliberate limitations
 
-FlowCore v0.1 does **not** claim that a dynamic substrate automatically yields
+FlowCore v0.2 does **not** claim that a dynamic substrate automatically yields
 AGI, emergent brain regions, or compute savings.  In particular:
 
 1. exact affine scan requires a structured operator family;

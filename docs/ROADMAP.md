@@ -10,12 +10,24 @@
 - predict-correct state-conditioned refinement
 - policy-anchor memory primitive
 
-## Phase 1 — validate the parallelization hypothesis
+## Phase 1 — validate the parallelization hypothesis (v0.2 in progress)
 
-- CUDA benchmark over sequence length, block size, batch size
-- `torch.compile` and custom associative-scan kernels
-- numerical-stability tests for long horizons
-- compare diagonal, block, dense-reference operator families
+Implemented:
+
+- work-efficient Blelloch affine scan with O(T) operator-composition work
+- Hillis-Steele reference scan
+- opt-in `torch.compile` scan wrapper
+- configurable CPU/CUDA benchmark harness
+- long-horizon numerical-stability sweep
+- dense, block and diagonal equivalence tests
+
+Still required:
+
+- systematic CUDA sweep over sequence length, block size and batch size
+- compiler/kernel profiling on modern GPUs
+- custom/Triton associative-scan kernel if PyTorch graph overhead is material
+- mixed-precision stability characterization
+- end-to-end FlowCore throughput comparison, not just scan-kernel timing
 
 ## Phase 2 — input topology experiments
 
