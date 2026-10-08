@@ -22,24 +22,14 @@ jobs:
           python -m pip install pytest
       - name: Test
         run: pytest -q
-      - name: v0.6 arbitrary routing reference
+      - name: v0.7 monomial arbitrary-routing oracle
         if: matrix.python-version == '3.11'
         run: |
-          python experiments/arbitrary_routing_stress.py \
-            --steps 100 \
-            --seeds 0,1,2 \
-            --batch 64 \
-            --eval-batch 256 \
+          python experiments/monomial_oracle.py \
             --modules 6 \
-            --local-dim 2 \
+            --local-dim 3 \
             --tasks 4 \
-            --train-time 4 \
-            --long-time 16 \
-            --device cpu \
-            --output results/v06_ci_reference.json
-      - name: Upload v0.6 benchmark result
-        if: matrix.python-version == '3.11'
-        uses: actions/upload-artifact@v4
-        with:
-          name: v06-ci-reference
-          path: results/v06_ci_reference.json
+            --batch 256 \
+            --time 16 \
+            --seed 0 \
+            --device cpu

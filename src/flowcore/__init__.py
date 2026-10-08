@@ -32,6 +32,13 @@ from .kronecker import (
 )
 from .memory import PolicyAnchorBuffer
 from .model import FlowCoreModel, RefinedFlowCoreModel
+from .monomial import (
+    apply_monomial_affine,
+    apply_monomial_linear,
+    compose_monomial_affine,
+    parallel_monomial_scan,
+    sequential_monomial_scan,
+)
 from .operators import (
     apply_affine,
     compose_affine,
@@ -110,6 +117,11 @@ __all__ = [
     "compose_circulant_kronecker_affine",
     "parallel_circulant_kronecker_scan",
     "sequential_circulant_kronecker_scan",
+    "apply_monomial_linear",
+    "apply_monomial_affine",
+    "compose_monomial_affine",
+    "parallel_monomial_scan",
+    "sequential_monomial_scan",
 ]
 
-__version__ = "0.6.0"
+__version__ = "0.7.0"

@@ -108,7 +108,7 @@ s = model(x, context=context, mode="sequential").states
 print((p - s).abs().max())
 ```
 
-## Implemented through v0.6
+## Implemented through v0.7
 
 - dense/block/diagonal affine operator composition
 - differentiable work-efficient Blelloch parallel scan (`O(T)` compositions, `O(log T)` depth)
@@ -132,6 +132,8 @@ print((p - s).abs().max())
 - exact frequency-domain composition with cyclic transport\n- matched physical cross-module transport benchmark\n- equal-size destination-to-Route policy comparison across all three substrates\n- direct delivery/leakage/persistence/runtime metrics
 - simultaneous multi-source permutation stress benchmark
 - analytic projection-error ceilings for block/spectral/circulant routing
+- exact monomial permutation x gain operator family
+- work-efficient parallel scan for arbitrary one-to-one module routing
 
 ## v0.2 parallelization status
 
@@ -301,6 +303,28 @@ operator family must increase representational freedom rather than only tuning
 optimization.
 
 See [`docs/V0_6_REPORT.md`](docs/V0_6_REPORT.md).
+
+## v0.7 monomial routing primitive
+
+v0.7 adds an exact algebraic primitive for arbitrary one-to-one routing:
+
+```text
+output[i] = gain[i] * input[permutation[i]]
+```
+
+Permutation/gain operators are closed under composition, so arbitrary
+permutations can participate in the same work-efficient temporal scan without
+materializing dense module matrices.
+
+```bash
+python experiments/monomial_oracle.py
+```
+
+This is deliberately an oracle-level substrate primitive, not yet a normal
+`FlowCoreModel` backend.  The unresolved problem is how a learned controller
+should produce discrete permutations while preserving exact execution.
+
+See [`docs/V0_7_REPORT.md`](docs/V0_7_REPORT.md).
 
 ## Deliberate limitations
 
