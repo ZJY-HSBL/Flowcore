@@ -51,6 +51,7 @@ Implemented:
 Next:
 
 - circulant/FFT routing for directional but still closed global communication (implemented in v0.4)
+- monomial permutation x gain routing for exact arbitrary one-to-one maps (v0.7 candidate)
 - products of multiple closed factors for higher expressiveness
 - arbitrary simultaneous permutation stress test (implemented in v0.6)
 - analytic operator-family projection ceilings (implemented in v0.6)

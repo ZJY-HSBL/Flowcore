@@ -289,6 +289,17 @@ python experiments/arbitrary_routing_stress.py \
   --tasks 4
 ```
 
+A three-seed CI reference run confirmed the intended stress pattern:
+
+| family | backend | MSE | slot accuracy | analytic error |
+| --- | --- | ---: | ---: | ---: |
+| cyclic | circulant | 0.00575 | 99.09% | 0.0000 |
+| arbitrary | circulant | 0.65722 | 27.47% | 0.81384 |
+
+The arbitrary failure tracks a large analytic projection error, so the next
+operator family must increase representational freedom rather than only tuning
+optimization.
+
 See [`docs/V0_6_REPORT.md`](docs/V0_6_REPORT.md).
 
 ## Deliberate limitations
