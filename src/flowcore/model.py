@@ -8,6 +8,7 @@ from torch import Tensor, nn
 from .config import FlowConfig
 from .controller import ControlSignals, RouteHoldController
 from .injection import MultiPortInjector
+from .spectral_substrate import SpectralKroneckerSubstrate
 from .substrate import ParallelFlowSubstrate
 
 
@@ -37,18 +38,25 @@ class _StateSummarizer(nn.Module):
         return self.proj(states)
 
 
+def _build_substrate(config: FlowConfig) -> nn.Module:
+    if config.substrate_kind == "block":
+        return ParallelFlowSubstrate(
+            state_dim=config.state_dim,
+            block_size=config.block_size,
+            stability_scale=config.stability_scale,
+        )
+    if config.substrate_kind == "spectral_kronecker":
+        return SpectralKroneckerSubstrate(
+            state_dim=config.state_dim,
+            block_size=config.block_size,
+            stability_scale=config.stability_scale,
+            mixing_basis_seed=config.mixing_basis_seed,
+        )
+    raise ValueError(f"unsupported substrate_kind: {config.substrate_kind}")
+
+
 class FlowCoreModel(nn.Module):
-    """End-to-end FlowCore prototype with exact scan-friendly dynamics.
-
-    Architecture::
-
-        input -> encoder -> multi-port B_k injection
-                        -> Route/Hold controller
-        injection + controls -> block-affine dynamic substrate -> readout
-
-    The controller is exogenous to the current recurrent state in this base model,
-    which makes the parallel scan exact in one pass.
-    """
+    """End-to-end FlowCore prototype with exact scan-friendly dynamics."""
 
     def __init__(self, config: FlowConfig, *, port_support_mask: Tensor | None = None) -> None:
         super().__init__()
@@ -78,11 +86,7 @@ class FlowCoreModel(nn.Module):
             active_ports=config.active_ports,
             support_mask=port_support_mask,
         )
-        self.substrate = ParallelFlowSubstrate(
-            state_dim=config.state_dim,
-            block_size=config.block_size,
-            stability_scale=config.stability_scale,
-        )
+        self.substrate = _build_substrate(config)
         self.readout = nn.Sequential(
             nn.Linear(config.state_dim, config.readout_hidden_dim),
             nn.SiLU(),
@@ -122,13 +126,7 @@ class FlowCoreModel(nn.Module):
 
 
 class RefinedFlowCoreModel(nn.Module):
-    """Predict-correct FlowCore with a small fixed number of global scan rounds.
-
-    Pass 0 predicts Route/Hold from encoded input/context only.  Subsequent passes
-    summarize the previous state trajectory, update the controls in parallel for
-    all time positions, and rescan.  This introduces state-conditioned nonlinear
-    control without restoring an O(T) controller dependency chain.
-    """
+    """Predict-correct FlowCore with a small fixed number of global scan rounds."""
 
     def __init__(
         self,
@@ -166,11 +164,7 @@ class RefinedFlowCoreModel(nn.Module):
             active_ports=config.active_ports,
             support_mask=port_support_mask,
         )
-        self.substrate = ParallelFlowSubstrate(
-            state_dim=config.state_dim,
-            block_size=config.block_size,
-            stability_scale=config.stability_scale,
-        )
+        self.substrate = _build_substrate(config)
         self.readout = nn.Sequential(
             nn.Linear(config.state_dim, config.readout_hidden_dim),
             nn.SiLU(),

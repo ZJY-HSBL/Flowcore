@@ -108,7 +108,7 @@ s = model(x, context=context, mode="sequential").states
 print((p - s).abs().max())
 ```
 
-## Implemented through v0.2
+## Implemented through v0.3
 
 - dense/block/diagonal affine operator composition
 - differentiable work-efficient Blelloch parallel scan (`O(T)` compositions, `O(log T)` depth)
@@ -125,6 +125,9 @@ print((p - s).abs().max())
 - correctness and gradient-equivalence tests
 - delayed-memory example and configurable scan microbenchmark
 - long-horizon stability diagnostics and v0.2 kernel report
+- exact spectral-Kronecker cross-module routing backend
+- shared-basis global communication with elementwise modal composition
+- end-to-end `substrate_kind="spectral_kronecker"` model option
 
 ## v0.2 parallelization status
 
@@ -142,6 +145,48 @@ before making general performance claims.
 ```bash
 python benchmarks/benchmark_scan.py --device auto --lengths 128,512,2048
 python experiments/stability_sweep.py --lengths 128,512,2048
+```
+
+## v0.3 cross-module routing
+
+The original block backend is exactly scan-friendly but has no communication
+between blocks inside a scan pass.  v0.3 adds an optional structured backend:
+
+```python
+cfg = FlowConfig(
+    input_dim=16,
+    output_dim=4,
+    state_dim=256,
+    block_size=8,
+    num_ports=8,
+    context_dim=32,
+    substrate_kind="spectral_kronecker",
+)
+model = FlowCoreModel(cfg)
+```
+
+It represents state as modules x local-state and uses
+
+```text
+H[t+1] = R[t] H[t] L[t]^T + B[t]
+R[t]   = Q diag(g[t]) Q^T
+```
+
+All routing matrices share the orthogonal basis `Q`, so composition is exact:
+
+```text
+g[2:1] = g[2] * g[1]
+L[2:1] = L[2] @ L[1]
+```
+
+This creates real cross-module signal transfer while retaining an associative
+operator family.  The trade-off is expressiveness: v0.3 routing is structured
+and simultaneously diagonalizable, not an arbitrary directed sparse graph.
+
+See [`docs/V0_3_REPORT.md`](docs/V0_3_REPORT.md) and run:
+
+```bash
+python experiments/cross_module_transfer.py
 ```
 
 ## Deliberate limitations

@@ -38,14 +38,23 @@ Still required:
 - fixed injection-energy budget
 - measure controllability proxies and state participation ratio
 
-## Phase 3 — structured cross-module routing
+## Phase 3 — structured cross-module routing (v0.3 started)
 
-Preserve a closed/composable operator family while adding richer communication:
+Implemented:
 
-- low-rank global coupling
-- block-sparse fixed graph with dynamic edge gains
-- chunk-level sparse exchange between exact scan segments
-- hierarchical module scan
+- exact spectral-Kronecker cross-module operator family
+- shared orthogonal mixing basis with dynamic modal Route/Hold gains
+- work-efficient parallel scan for the closed cross-module family
+- cross-module transfer and gradient-equivalence tests
+- end-to-end spectral backend in FlowCoreModel
+
+Next:
+
+- circulant/FFT routing for directional but still closed global communication
+- products of multiple closed factors for higher expressiveness
+- hierarchical chunk-level sparse exchange
+- compare routing expressiveness vs scan cost and numerical stability
+- retain low-rank/block-sparse approximations as experimental baselines
 
 ## Phase 4 — policy memory and continual learning
 

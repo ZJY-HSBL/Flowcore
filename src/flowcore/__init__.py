@@ -4,6 +4,14 @@ from .config import FlowConfig
 from .controller import RouteHoldController
 from .diagnostics import StateDiagnostics, relative_state_error, state_diagnostics
 from .injection import MultiPortInjector, PortSelector
+from .kronecker import (
+    apply_spectral_kronecker_affine,
+    compose_spectral_kronecker_affine,
+    materialize_module_matrix,
+    orthogonal_mixing_basis,
+    parallel_spectral_kronecker_scan,
+    sequential_spectral_kronecker_scan,
+)
 from .memory import PolicyAnchorBuffer
 from .model import FlowCoreModel, RefinedFlowCoreModel
 from .operators import (
@@ -14,6 +22,7 @@ from .operators import (
     scan_composition_count,
     sequential_affine_scan,
 )
+from .spectral_substrate import SpectralKroneckerSubstrate
 from .substrate import ParallelFlowSubstrate
 
 __all__ = [
@@ -21,6 +30,7 @@ __all__ = [
     "FlowCoreModel",
     "RefinedFlowCoreModel",
     "ParallelFlowSubstrate",
+    "SpectralKroneckerSubstrate",
     "RouteHoldController",
     "MultiPortInjector",
     "PortSelector",
@@ -34,6 +44,12 @@ __all__ = [
     "make_compiled_scan",
     "scan_composition_count",
     "sequential_affine_scan",
+    "orthogonal_mixing_basis",
+    "materialize_module_matrix",
+    "apply_spectral_kronecker_affine",
+    "compose_spectral_kronecker_affine",
+    "parallel_spectral_kronecker_scan",
+    "sequential_spectral_kronecker_scan",
 ]
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"

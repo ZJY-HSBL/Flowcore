@@ -1,16 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Literal
 
 
 @dataclass(slots=True)
 class FlowConfig:
-    """Configuration for a scan-friendly FlowCore substrate.
-
-    The current scalable backend uses block-diagonal affine dynamics.  Each block
-    is a small local microcircuit; all blocks can be scanned in parallel through
-    time because the operator family is closed under composition.
-    """
+    """Configuration for a scan-friendly FlowCore substrate."""
 
     input_dim: int
     output_dim: int
@@ -24,6 +20,8 @@ class FlowConfig:
     active_ports: int | None = 2
     stability_scale: float = 0.90
     refinement_steps: int = 1
+    substrate_kind: Literal["block", "spectral_kronecker"] = "block"
+    mixing_basis_seed: int = 17
 
     def __post_init__(self) -> None:
         if self.input_dim <= 0 or self.output_dim <= 0 or self.state_dim <= 0:
@@ -39,6 +37,8 @@ class FlowConfig:
             raise ValueError("stability_scale must be in (0, 1]")
         if self.refinement_steps <= 0:
             raise ValueError("refinement_steps must be positive")
+        if self.substrate_kind not in {"block", "spectral_kronecker"}:
+            raise ValueError("unsupported substrate_kind")
 
     @property
     def num_blocks(self) -> int:
