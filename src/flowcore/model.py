@@ -5,7 +5,8 @@ from dataclasses import dataclass
 import torch
 from torch import Tensor, nn
 
-from .circulant_substrate import CirculantKroneckerSubstrate\nfrom .config import FlowConfig
+from .circulant_substrate import CirculantKroneckerSubstrate
+from .config import FlowConfig
 from .controller import ControlSignals, RouteHoldController
 from .injection import MultiPortInjector
 from .spectral_substrate import SpectralKroneckerSubstrate
@@ -51,6 +52,12 @@ def _build_substrate(config: FlowConfig) -> nn.Module:
             block_size=config.block_size,
             stability_scale=config.stability_scale,
             mixing_basis_seed=config.mixing_basis_seed,
+        )
+    if config.substrate_kind == "circulant_kronecker":
+        return CirculantKroneckerSubstrate(
+            state_dim=config.state_dim,
+            block_size=config.block_size,
+            stability_scale=config.stability_scale,
         )
     raise ValueError(f"unsupported substrate_kind: {config.substrate_kind}")
 

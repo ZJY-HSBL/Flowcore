@@ -127,7 +127,9 @@ print((p - s).abs().max())
 - long-horizon stability diagnostics and v0.2 kernel report
 - exact spectral-Kronecker cross-module routing backend
 - shared-basis global communication with elementwise modal composition
-- end-to-end `substrate_kind="spectral_kronecker"` model option\n- directional circulant/FFT cross-module routing backend\n- exact frequency-domain composition with cyclic transport
+- end-to-end `substrate_kind="spectral_kronecker"` model option
+- directional circulant/FFT cross-module routing backend
+- exact frequency-domain composition with cyclic transport
 
 ## v0.2 parallelization status
 
