@@ -50,8 +50,8 @@ Implemented:
 
 Next:
 
-- circulant/FFT routing for directional but still closed global communication
-- products of multiple closed factors for higher expressiveness
+- circulant/FFT routing for directional but still closed global communication (implemented in v0.4)
+- products of multiple closed factors for higher expressiveness\n- learnable module layouts / permutations for circulant routing
 - hierarchical chunk-level sparse exchange
 - compare routing expressiveness vs scan cost and numerical stability
 - retain low-rank/block-sparse approximations as experimental baselines

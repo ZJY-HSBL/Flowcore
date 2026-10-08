@@ -20,7 +20,7 @@ class FlowConfig:
     active_ports: int | None = 2
     stability_scale: float = 0.90
     refinement_steps: int = 1
-    substrate_kind: Literal["block", "spectral_kronecker"] = "block"
+    substrate_kind: Literal["block", "spectral_kronecker", "circulant_kronecker"] = "block"
     mixing_basis_seed: int = 17
 
     def __post_init__(self) -> None:
@@ -37,7 +37,7 @@ class FlowConfig:
             raise ValueError("stability_scale must be in (0, 1]")
         if self.refinement_steps <= 0:
             raise ValueError("refinement_steps must be positive")
-        if self.substrate_kind not in {"block", "spectral_kronecker"}:
+        if self.substrate_kind not in {"block", "spectral_kronecker", "circulant_kronecker"}:
             raise ValueError("unsupported substrate_kind")
 
     @property

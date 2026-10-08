@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import torch
 from torch import Tensor, nn
 
-from .config import FlowConfig
+from .circulant_substrate import CirculantKroneckerSubstrate\nfrom .config import FlowConfig
 from .controller import ControlSignals, RouteHoldController
 from .injection import MultiPortInjector
 from .spectral_substrate import SpectralKroneckerSubstrate

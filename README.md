@@ -108,7 +108,7 @@ s = model(x, context=context, mode="sequential").states
 print((p - s).abs().max())
 ```
 
-## Implemented through v0.3
+## Implemented through v0.4
 
 - dense/block/diagonal affine operator composition
 - differentiable work-efficient Blelloch parallel scan (`O(T)` compositions, `O(log T)` depth)
@@ -127,7 +127,7 @@ print((p - s).abs().max())
 - long-horizon stability diagnostics and v0.2 kernel report
 - exact spectral-Kronecker cross-module routing backend
 - shared-basis global communication with elementwise modal composition
-- end-to-end `substrate_kind="spectral_kronecker"` model option
+- end-to-end `substrate_kind="spectral_kronecker"` model option\n- directional circulant/FFT cross-module routing backend\n- exact frequency-domain composition with cyclic transport
 
 ## v0.2 parallelization status
 
@@ -188,6 +188,41 @@ See [`docs/V0_3_REPORT.md`](docs/V0_3_REPORT.md) and run:
 ```bash
 python experiments/cross_module_transfer.py
 ```
+
+## v0.4 directional FFT routing
+
+v0.4 adds a second exact cross-module backend:
+
+```python
+cfg = FlowConfig(
+    input_dim=16,
+    output_dim=4,
+    state_dim=256,
+    block_size=8,
+    num_ports=8,
+    context_dim=32,
+    substrate_kind="circulant_kronecker",
+)
+```
+
+Module routing is represented by a real circular kernel `k[t]`.  The runtime
+uses its FFT spectrum:
+
+```text
+R[t] x = IFFT( FFT(k[t]) * FFT(x) )
+```
+
+and composition is exact:
+
+```text
+spectrum[2:1] = spectrum[2] * spectrum[1]
+```
+
+Unlike the v0.3 shared-orthogonal-basis backend, a circulant kernel can encode
+directional cyclic movement between modules.  The remaining restriction is
+translation structure: every module uses the same relative routing offsets.
+
+See [`docs/V0_4_REPORT.md`](docs/V0_4_REPORT.md).
 
 ## Deliberate limitations
 
