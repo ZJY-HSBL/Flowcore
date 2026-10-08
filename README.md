@@ -409,6 +409,19 @@ python experiments/factorized_controller_sweep.py \
 The primary success criterion is hard whole-task permutation accuracy after
 assignment projection, not soft Sinkhorn reconstruction loss.
 
+The CI sweep found no loss even at rank 1:
+
+| rank | params | hard task exact |
+| ---: | ---: | ---: |
+| 1 | 30 | 100% |
+| 2 | 60 | 100% |
+| 3 | 90 | 100% |
+| 4 | 120 | 100% |
+| full v0.8 | 144 | 100% |
+
+All three seeds were exact at every rank.  The next bottleneck is therefore not
+controller rank but the explicit task-ID lookup itself.
+
 See [`docs/V0_9_REPORT.md`](docs/V0_9_REPORT.md).
 
 ## Deliberate limitations

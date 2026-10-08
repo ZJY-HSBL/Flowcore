@@ -102,3 +102,36 @@ encoded more compactly, not that FlowCore can infer new routes from unseen
 content or context.
 
 That generalization question should be separated into a later experiment.
+
+
+## 7. CI reference result
+
+GitHub Actions run 37800868426 executed ranks 1,2,3,4 across seeds 0,1,2 with
+300 optimization steps per run.
+
+Every rank and every seed recovered all four arbitrary permutations exactly:
+
+| rank | params | fraction of full | hard MSE | slot accuracy | entry accuracy | task exact |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 30 | 20.8% | 0 | 100% | 100% | 100% |
+| 2 | 60 | 41.7% | 0 | 100% | 100% | 100% |
+| 3 | 90 | 62.5% | 0 | 100% | 100% | 100% |
+| 4 | 120 | 83.3% | 0 | 100% | 100% | 100% |
+
+The Python 3.11 job passed 37 tests.  Python 3.10 and 3.12 also passed.
+
+The rank-1 result is the important one.  In this particular four-task bank, a
+30-parameter query/key factorization is already sufficient, only slightly above
+the 24-value continuous route-vector baseline and far below the 144-parameter
+full permutation table.
+
+## 8. Consequence
+
+There is no evidence from this benchmark that the full M x M task table is
+needed.  More rank scanning would not answer a useful question because the
+minimum tested rank already saturates hard accuracy.
+
+The next bottleneck is explicit task identity.  v0.10 should remove task-ID
+lookup and require a shared controller to infer the permutation from current
+routing content/context, including permutations not stored as task-specific
+parameters.

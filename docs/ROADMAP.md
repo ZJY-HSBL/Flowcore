@@ -53,7 +53,8 @@ Next:
 - circulant/FFT routing for directional but still closed global communication (implemented in v0.4)
 - monomial permutation x gain routing for exact arbitrary one-to-one maps (implemented as algebraic primitive in v0.7)
 - discrete permutation controller via Sinkhorn relaxation + hard assignment (implemented in v0.8)
-- factorized permutation-controller rank/bandwidth sweep (implemented in v0.9)
+- factorized permutation-controller rank/bandwidth sweep (implemented in v0.9; rank 1 already exact on reference bank)
+- remove task-ID lookup: infer permutation from route context/content (next)
 - codebook/hierarchical permutation controller for lower bandwidth
 - reconcile continuous Hold with discrete exact routing
 - products of multiple closed factors for higher expressiveness
