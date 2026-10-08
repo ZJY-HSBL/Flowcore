@@ -114,7 +114,61 @@ python experiments/compare_substrates.py \
 
 Results are written as JSON with per-seed rows and mean/std summaries.
 
-## 6. Interpretation rule
+## 6. CI reference result
+
+GitHub Actions run 37742036277 executed a reproducible CPU reference profile:
+
+```text
+steps=120
+seeds=0,1,2
+modules=4
+local_dim=1
+train_time=4
+long_time=16
+frozen substrate
+same 4 x 4 destination-to-Route policy for every backend
+```
+
+The three-seed means were:
+
+| backend | long target MSE | delivery fraction | leakage MSE | max parallel error | parallel ms | sequential/parallel |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| block | 0.97018 | 0.0000 | 0.00076 | 0 | 0.340 | 0.608 |
+| spectral-Kronecker | 0.55690 | 0.1256 | 0.18382 | 9.54e-7 | 0.710 | 0.836 |
+| circulant-Kronecker | 0.00320 | 0.9988 | 0.00035 | 0 | 0.609 | 0.749 |
+
+Per-seed long-horizon target MSE:
+
+```text
+block:                 0.79615, 1.13655, 0.97786
+spectral-Kronecker:    0.46811, 0.65818, 0.54443
+circulant-Kronecker:   0.00250, 0.00376, 0.00334
+```
+
+The controlled result supports three narrow conclusions.
+
+First, the block substrate behaves as expected: because it has no cross-module
+operator, target-module delivery is exactly zero on this physical transport
+task.
+
+Second, the shared-basis spectral backend can transfer information but is
+strongly constrained by the positive modal-gain family used in v0.5.
+
+Third, directional circulant routing is almost exact on the task it is
+structurally matched to: about 99.88% of final state energy reaches the requested
+module with target MSE around 3.2e-3.
+
+The parallel/sequential errors remain at float32 noise level.  Runtime tells the
+opposite story from accuracy: at this very short T=16 CPU profile,
+sequential/parallel is below 1 for every backend.  The tree scan is therefore
+slower than the simple recurrence here.  v0.5 does not support a speed claim;
+the parallel path is expected to matter only at larger horizons/hardware
+parallelism.
+
+The full JSON output is uploaded by CI as the `v05-ci-reference` workflow
+artifact.
+
+## 7. Interpretation rule
 
 v0.5 should not be used to claim that one backend is universally superior.
 

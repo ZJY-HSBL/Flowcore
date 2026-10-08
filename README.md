@@ -248,6 +248,19 @@ The JSON output reports target MSE, non-target leakage, physical delivery
 fraction, persistence, parallel/sequential agreement and runtime.  Use
 `--train-substrate` for the joint-learning regime.
 
+A three-seed CI reference profile (4 modules, 1D local state, 120 route-policy
+updates, frozen substrates) produced:
+
+| backend | long MSE | target energy delivery |
+| --- | ---: | ---: |
+| block | 0.97018 | 0.00% |
+| spectral-Kronecker | 0.55690 | 12.56% |
+| circulant-Kronecker | 0.00320 | 99.88% |
+
+This is a deliberately narrow transport benchmark, not a general sequence-model
+ranking.  At the short T=16 CPU profile, the parallel scan was also slower than
+the sequential recurrence for all three backends.
+
 See [`docs/V0_5_REPORT.md`](docs/V0_5_REPORT.md).
 
 ## Deliberate limitations
