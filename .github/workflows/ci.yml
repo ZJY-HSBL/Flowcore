@@ -22,3 +22,19 @@ jobs:
           python -m pip install pytest
       - name: Test
         run: pytest -q
+      - name: v0.5 substrate benchmark smoke
+        if: matrix.python-version == '3.11'
+        run: |
+          python experiments/compare_substrates.py \
+            --steps 20 \
+            --seeds 0 \
+            --batch 32 \
+            --eval-batch 64 \
+            --runtime-batch 8 \
+            --modules 4 \
+            --local-dim 1 \
+            --train-time 4 \
+            --long-time 8 \
+            --runtime-repeats 2 \
+            --device cpu \
+            --output results/v05_smoke.json

@@ -38,7 +38,7 @@ Still required:
 - fixed injection-energy budget
 - measure controllability proxies and state participation ratio
 
-## Phase 3 — structured cross-module routing (v0.3 started)
+## Phase 3 — structured cross-module routing (v0.3-v0.5 active)
 
 Implemented:
 
@@ -55,7 +55,7 @@ Next:
 - learnable module layouts / permutations for circulant routing
 - hierarchical chunk-level sparse exchange
 - compare routing expressiveness vs scan cost and numerical stability
-- retain low-rank/block-sparse approximations as experimental baselines
+- retain low-rank/block-sparse approximations as experimental baselines\n\nValidation added in v0.5:\n\n- matched physical cross-module transport benchmark\n- equal-size destination-to-Route policy across block/spectral/circulant backends\n- frozen-substrate expressiveness regime and optional joint-learning regime\n- delivery, leakage, long-horizon persistence and runtime metrics
 
 ## Phase 4 — policy memory and continual learning
 

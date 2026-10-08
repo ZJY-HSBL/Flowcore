@@ -108,7 +108,7 @@ s = model(x, context=context, mode="sequential").states
 print((p - s).abs().max())
 ```
 
-## Implemented through v0.4
+## Implemented through v0.5
 
 - dense/block/diagonal affine operator composition
 - differentiable work-efficient Blelloch parallel scan (`O(T)` compositions, `O(log T)` depth)
@@ -129,7 +129,7 @@ print((p - s).abs().max())
 - shared-basis global communication with elementwise modal composition
 - end-to-end `substrate_kind="spectral_kronecker"` model option
 - directional circulant/FFT cross-module routing backend
-- exact frequency-domain composition with cyclic transport
+- exact frequency-domain composition with cyclic transport\n- matched physical cross-module transport benchmark\n- equal-size destination-to-Route policy comparison across all three substrates\n- direct delivery/leakage/persistence/runtime metrics
 
 ## v0.2 parallelization status
 
@@ -226,9 +226,33 @@ translation structure: every module uses the same relative routing offsets.
 
 See [`docs/V0_4_REPORT.md`](docs/V0_4_REPORT.md).
 
+## v0.5 matched substrate benchmark
+
+v0.5 adds a common physical transport task.  A payload enters only module 0 and
+the requested destination must contain that payload after one routing event.
+There is no learned readout that can bypass the substrate.
+
+By default, all three substrates are calibrated to identity-like local dynamics
+and frozen; each receives the same `M x M` destination-to-Route policy.
+
+```bash
+python experiments/compare_substrates.py \
+  --steps 400 \
+  --seeds 0,1,2,3,4 \
+  --modules 8 \
+  --local-dim 2 \
+  --long-time 64
+```
+
+The JSON output reports target MSE, non-target leakage, physical delivery
+fraction, persistence, parallel/sequential agreement and runtime.  Use
+`--train-substrate` for the joint-learning regime.
+
+See [`docs/V0_5_REPORT.md`](docs/V0_5_REPORT.md).
+
 ## Deliberate limitations
 
-FlowCore v0.2 does **not** claim that a dynamic substrate automatically yields
+FlowCore does **not** claim that a dynamic substrate automatically yields
 AGI, emergent brain regions, or compute savings.  In particular:
 
 1. exact affine scan requires a structured operator family;
