@@ -22,25 +22,24 @@ jobs:
           python -m pip install pytest
       - name: Test
         run: pytest -q
-      - name: v0.5 reference substrate benchmark
+      - name: v0.6 arbitrary routing reference
         if: matrix.python-version == '3.11'
         run: |
-          python experiments/compare_substrates.py \
-            --steps 120 \
+          python experiments/arbitrary_routing_stress.py \
+            --steps 100 \
             --seeds 0,1,2 \
             --batch 64 \
             --eval-batch 256 \
-            --runtime-batch 16 \
-            --modules 4 \
-            --local-dim 1 \
+            --modules 6 \
+            --local-dim 2 \
+            --tasks 4 \
             --train-time 4 \
             --long-time 16 \
-            --runtime-repeats 3 \
             --device cpu \
-            --output results/v05_ci_reference.json
-      - name: Upload v0.5 benchmark result
+            --output results/v06_ci_reference.json
+      - name: Upload v0.6 benchmark result
         if: matrix.python-version == '3.11'
         uses: actions/upload-artifact@v4
         with:
-          name: v05-ci-reference
-          path: results/v05_ci_reference.json
+          name: v06-ci-reference
+          path: results/v06_ci_reference.json

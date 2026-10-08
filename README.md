@@ -108,7 +108,7 @@ s = model(x, context=context, mode="sequential").states
 print((p - s).abs().max())
 ```
 
-## Implemented through v0.5
+## Implemented through v0.6
 
 - dense/block/diagonal affine operator composition
 - differentiable work-efficient Blelloch parallel scan (`O(T)` compositions, `O(log T)` depth)
@@ -130,6 +130,8 @@ print((p - s).abs().max())
 - end-to-end `substrate_kind="spectral_kronecker"` model option
 - directional circulant/FFT cross-module routing backend
 - exact frequency-domain composition with cyclic transport\n- matched physical cross-module transport benchmark\n- equal-size destination-to-Route policy comparison across all three substrates\n- direct delivery/leakage/persistence/runtime metrics
+- simultaneous multi-source permutation stress benchmark
+- analytic projection-error ceilings for block/spectral/circulant routing
 
 ## v0.2 parallelization status
 
@@ -262,6 +264,32 @@ ranking.  At the short T=16 CPU profile, the parallel scan was also slower than
 the sequential recurrence for all three backends.
 
 See [`docs/V0_5_REPORT.md`](docs/V0_5_REPORT.md).
+
+## v0.6 arbitrary routing stress test
+
+v0.6 replaces the single-source transport assumption with simultaneous payloads
+in every module.  One dynamic operator must implement an entire permutation.
+
+Two task families are compared:
+
+- cyclic shifts, which are an exact positive control for circulant routing;
+- non-cyclic random permutations, which deliberately violate translation
+  structure.
+
+The experiment also computes the best analytic projection of every target
+permutation into the current block, shared-basis spectral and circulant matrix
+families.  This separates optimization failure from representation limits.
+
+```bash
+python experiments/arbitrary_routing_stress.py \
+  --steps 250 \
+  --seeds 0,1,2 \
+  --modules 6 \
+  --local-dim 3 \
+  --tasks 4
+```
+
+See [`docs/V0_6_REPORT.md`](docs/V0_6_REPORT.md).
 
 ## Deliberate limitations
 

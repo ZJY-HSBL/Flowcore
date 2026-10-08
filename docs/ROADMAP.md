@@ -38,7 +38,7 @@ Still required:
 - fixed injection-energy budget
 - measure controllability proxies and state participation ratio
 
-## Phase 3 — structured cross-module routing (v0.3-v0.5 active)
+## Phase 3 — structured cross-module routing (v0.3-v0.6 active)
 
 Implemented:
 
@@ -52,6 +52,8 @@ Next:
 
 - circulant/FFT routing for directional but still closed global communication (implemented in v0.4)
 - products of multiple closed factors for higher expressiveness
+- arbitrary simultaneous permutation stress test (implemented in v0.6)
+- analytic operator-family projection ceilings (implemented in v0.6)
 - learnable module layouts / permutations for circulant routing
 - hierarchical chunk-level sparse exchange
 - compare routing expressiveness vs scan cost and numerical stability

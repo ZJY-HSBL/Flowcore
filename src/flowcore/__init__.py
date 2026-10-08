@@ -40,6 +40,21 @@ from .operators import (
     scan_composition_count,
     sequential_affine_scan,
 )
+from .permutation import (
+    PermutationBatch,
+    PermutationMetrics,
+    arbitrary_permutation_bank,
+    block_projection_error,
+    circulant_projection_error,
+    cyclic_permutation_bank,
+    is_cyclic_permutation,
+    make_permutation_batch,
+    make_permutation_controls,
+    permutation_loss,
+    permutation_matrix,
+    permutation_metrics,
+    spectral_projection_error,
+)
 from .spectral_substrate import SpectralKroneckerSubstrate
 from .substrate import ParallelFlowSubstrate
 
@@ -57,6 +72,8 @@ __all__ = [
     "StateDiagnostics",
     "TransportBatch",
     "TransportMetrics",
+    "PermutationBatch",
+    "PermutationMetrics",
     "state_diagnostics",
     "relative_state_error",
     "make_transport_batch",
@@ -65,6 +82,17 @@ __all__ = [
     "transport_loss",
     "transport_metrics",
     "parameter_count",
+    "make_permutation_batch",
+    "make_permutation_controls",
+    "permutation_loss",
+    "permutation_metrics",
+    "permutation_matrix",
+    "cyclic_permutation_bank",
+    "arbitrary_permutation_bank",
+    "is_cyclic_permutation",
+    "block_projection_error",
+    "circulant_projection_error",
+    "spectral_projection_error",
     "apply_affine",
     "compose_affine",
     "parallel_affine_scan",
@@ -84,4 +112,4 @@ __all__ = [
     "sequential_circulant_kronecker_scan",
 ]
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"
