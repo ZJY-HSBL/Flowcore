@@ -324,6 +324,19 @@ This is deliberately an oracle-level substrate primitive, not yet a normal
 `FlowCoreModel` backend.  The unresolved problem is how a learned controller
 should produce discrete permutations while preserving exact execution.
 
+The CI oracle on four non-cyclic 6-module permutations produced exactly:
+
+```text
+MSE             0
+relative MSE    0
+slot accuracy   100%
+parallel error  0
+```
+
+This proves the algebraic substrate can express the v0.6 failure cases exactly.
+It does **not** prove that a neural controller can learn the required discrete
+permutations.
+
 See [`docs/V0_7_REPORT.md`](docs/V0_7_REPORT.md).
 
 ## Deliberate limitations

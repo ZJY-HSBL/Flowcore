@@ -125,3 +125,59 @@ interpolation and exact arbitrary discrete routing.
 
 That trade-off is now an explicit research target rather than an implementation
 detail.
+
+
+## 7. CI oracle result
+
+GitHub Actions run 37798579002 executed:
+
+```text
+modules=6
+local_dim=3
+tasks=4 arbitrary non-cyclic permutations
+batch=256
+time=16
+CPU
+```
+
+The monomial oracle produced:
+
+```text
+mse=0.00000000
+relative_mse=0.00000000
+slot_accuracy=1.000000
+parallel_error=0.000e+00
+```
+
+The Python 3.11 test job passed 31 tests, including:
+
+- direct monomial apply vs explicit gather;
+- two-operator exact composition;
+- sequential vs parallel state equivalence;
+- sequential vs parallel gradient equivalence for gain/local/bias;
+- exact arbitrary-permutation oracle routing.
+
+This establishes the algebraic point cleanly: arbitrary one-to-one routing is
+compatible with exact associative temporal scan and does not require dense
+module-matrix composition.
+
+It does not establish an end-to-end learning result because the discrete
+permutation is supplied by the experiment.
+
+## 8. New research boundary
+
+After v0.6 and v0.7, the main bottleneck has moved.
+
+Before v0.7 the question was:
+
+> Can an exact scan-friendly operator family represent arbitrary module routing?
+
+For one-to-one routing, the answer is now yes.
+
+The new question is:
+
+> Can a controller learn and select the right discrete permutation efficiently,
+> while retaining stable gradients, sparse execution and useful Hold semantics?
+
+That controller problem should be attacked before expanding the operator family
+again.
