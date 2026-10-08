@@ -38,7 +38,7 @@ Still required:
 - fixed injection-energy budget
 - measure controllability proxies and state participation ratio
 
-## Phase 3 — structured cross-module routing (v0.3-v0.7 active)
+## Phase 3 — structured cross-module routing (v0.3-v0.8 active)
 
 Implemented:
 
@@ -52,7 +52,8 @@ Next:
 
 - circulant/FFT routing for directional but still closed global communication (implemented in v0.4)
 - monomial permutation x gain routing for exact arbitrary one-to-one maps (implemented as algebraic primitive in v0.7)
-- discrete permutation controller / codebook learning for monomial routing
+- discrete permutation controller via Sinkhorn relaxation + hard assignment (implemented in v0.8)
+- factorized/codebook/hierarchical permutation controller for lower bandwidth
 - reconcile continuous Hold with discrete exact routing
 - products of multiple closed factors for higher expressiveness
 - arbitrary simultaneous permutation stress test (implemented in v0.6)

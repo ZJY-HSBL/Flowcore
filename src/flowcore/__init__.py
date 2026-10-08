@@ -11,6 +11,13 @@ from .circulant_substrate import CirculantKroneckerSubstrate
 from .config import FlowConfig
 from .controller import RouteHoldController
 from .diagnostics import StateDiagnostics, relative_state_error, state_diagnostics
+from .discrete_controller import (
+    TaskPermutationController,
+    geometric_temperature,
+    maximum_weight_permutation,
+    permutation_matrix_batch,
+    sinkhorn_matrix,
+)
 from .evaluation import (
     TransportBatch,
     TransportMetrics,
@@ -73,6 +80,7 @@ __all__ = [
     "SpectralKroneckerSubstrate",
     "CirculantKroneckerSubstrate",
     "RouteHoldController",
+    "TaskPermutationController",
     "MultiPortInjector",
     "PortSelector",
     "PolicyAnchorBuffer",
@@ -100,6 +108,10 @@ __all__ = [
     "block_projection_error",
     "circulant_projection_error",
     "spectral_projection_error",
+    "sinkhorn_matrix",
+    "maximum_weight_permutation",
+    "permutation_matrix_batch",
+    "geometric_temperature",
     "apply_affine",
     "compose_affine",
     "parallel_affine_scan",
@@ -124,4 +136,4 @@ __all__ = [
     "sequential_monomial_scan",
 ]
 
-__version__ = "0.7.0"
+__version__ = "0.8.0"

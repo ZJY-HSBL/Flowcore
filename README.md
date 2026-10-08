@@ -108,7 +108,7 @@ s = model(x, context=context, mode="sequential").states
 print((p - s).abs().max())
 ```
 
-## Implemented through v0.7
+## Implemented through v0.8
 
 - dense/block/diagonal affine operator composition
 - differentiable work-efficient Blelloch parallel scan (`O(T)` compositions, `O(log T)` depth)
@@ -134,6 +134,8 @@ print((p - s).abs().max())
 - analytic projection-error ceilings for block/spectral/circulant routing
 - exact monomial permutation x gain operator family
 - work-efficient parallel scan for arbitrary one-to-one module routing
+- Sinkhorn-relaxed task-to-permutation controller
+- exact maximum-weight hard assignment for monomial execution
 
 ## v0.2 parallelization status
 
@@ -338,6 +340,27 @@ It does **not** prove that a neural controller can learn the required discrete
 permutations.
 
 See [`docs/V0_7_REPORT.md`](docs/V0_7_REPORT.md).
+
+## v0.8 learned discrete route controller
+
+v0.8 trains a task-conditioned permutation controller using only payload
+reconstruction loss.  Training uses a Sinkhorn-relaxed doubly-stochastic matrix;
+execution projects it to an exact permutation and runs the monomial parallel
+scan.
+
+```bash
+python experiments/learn_discrete_route.py \
+  --steps 300 \
+  --seeds 0,1,2 \
+  --modules 6 \
+  --local-dim 3 \
+  --tasks 4
+```
+
+The current exact assignment projection is intentionally small-scale
+(`O(M^2 2^M)`) and serves as a correctness reference, not a production router.
+
+See [`docs/V0_8_REPORT.md`](docs/V0_8_REPORT.md).
 
 ## Deliberate limitations
 
