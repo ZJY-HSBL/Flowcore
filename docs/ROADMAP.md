@@ -38,7 +38,7 @@ Still required:
 - fixed injection-energy budget
 - measure controllability proxies and state participation ratio
 
-## Phase 3 — structured cross-module routing (v0.3-v0.8 active)
+## Phase 3 — structured cross-module routing (v0.3-v0.9 active)
 
 Implemented:
 
@@ -53,7 +53,7 @@ Next:
 - circulant/FFT routing for directional but still closed global communication (implemented in v0.4)
 - monomial permutation x gain routing for exact arbitrary one-to-one maps (implemented as algebraic primitive in v0.7)
 - discrete permutation controller via Sinkhorn relaxation + hard assignment (implemented in v0.8)
-- factorized permutation-controller rank/bandwidth sweep (next)
+- factorized permutation-controller rank/bandwidth sweep (implemented in v0.9)
 - codebook/hierarchical permutation controller for lower bandwidth
 - reconcile continuous Hold with discrete exact routing
 - products of multiple closed factors for higher expressiveness
@@ -62,7 +62,14 @@ Next:
 - learnable module layouts / permutations for circulant routing
 - hierarchical chunk-level sparse exchange
 - compare routing expressiveness vs scan cost and numerical stability
-- retain low-rank/block-sparse approximations as experimental baselines\n\nValidation added in v0.5:\n\n- matched physical cross-module transport benchmark\n- equal-size destination-to-Route policy across block/spectral/circulant backends\n- frozen-substrate expressiveness regime and optional joint-learning regime\n- delivery, leakage, long-horizon persistence and runtime metrics
+- retain low-rank/block-sparse approximations as experimental baselines
+
+Validation added in v0.5:
+
+- matched physical cross-module transport benchmark
+- equal-size destination-to-Route policy across block/spectral/circulant backends
+- frozen-substrate expressiveness regime and optional joint-learning regime
+- delivery, leakage, long-horizon persistence and runtime metrics
 
 ## Phase 4 — policy memory and continual learning
 

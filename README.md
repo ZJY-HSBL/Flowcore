@@ -108,7 +108,7 @@ s = model(x, context=context, mode="sequential").states
 print((p - s).abs().max())
 ```
 
-## Implemented through v0.8
+## Implemented through v0.9
 
 - dense/block/diagonal affine operator composition
 - differentiable work-efficient Blelloch parallel scan (`O(T)` compositions, `O(log T)` depth)
@@ -136,6 +136,7 @@ print((p - s).abs().max())
 - work-efficient parallel scan for arbitrary one-to-one module routing
 - Sinkhorn-relaxed task-to-permutation controller
 - exact maximum-weight hard assignment for monomial execution
+- factorized task-to-permutation controller and rank/bandwidth sweep
 
 ## v0.2 parallelization status
 
@@ -375,6 +376,40 @@ route-vector baseline.  The next experiment therefore scans factorized
 controller capacity rather than adding a larger router.
 
 See [`docs/V0_8_REPORT.md`](docs/V0_8_REPORT.md).
+
+## v0.9 factorized controller bandwidth sweep
+
+v0.9 keeps the v0.8 Sinkhorn-to-monomial execution pipeline unchanged and
+compresses only the route controller.
+
+The full controller stores one `M x M` score matrix per task.  The factorized
+controller instead uses task/output queries and shared source keys:
+
+```text
+score[t,i,j] = <query[t,i], key[j]> / sqrt(rank)
+```
+
+Its parameter count is:
+
+```text
+M * rank * (T + 1)
+```
+
+instead of `T * M^2`.
+
+```bash
+python experiments/factorized_controller_sweep.py \
+  --ranks 1,2,3,4 \
+  --steps 350 \
+  --seeds 0,1,2 \
+  --modules 6 \
+  --tasks 4
+```
+
+The primary success criterion is hard whole-task permutation accuracy after
+assignment projection, not soft Sinkhorn reconstruction loss.
+
+See [`docs/V0_9_REPORT.md`](docs/V0_9_REPORT.md).
 
 ## Deliberate limitations
 

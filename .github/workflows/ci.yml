@@ -22,11 +22,12 @@ jobs:
           python -m pip install pytest
       - name: Test
         run: pytest -q
-      - name: v0.8 learned discrete route reference
+      - name: v0.9 factorized controller rank sweep
         if: matrix.python-version == '3.11'
         run: |
-          python experiments/learn_discrete_route.py \
-            --steps 250 \
+          python experiments/factorized_controller_sweep.py \
+            --ranks 1,2,3,4 \
+            --steps 300 \
             --seeds 0,1,2 \
             --batch 128 \
             --eval-batch 512 \
@@ -35,10 +36,10 @@ jobs:
             --tasks 4 \
             --time 16 \
             --device cpu \
-            --output results/v08_ci_reference.json
-      - name: Upload v0.8 controller result
+            --output results/v09_ci_reference.json
+      - name: Upload v0.9 controller result
         if: matrix.python-version == '3.11'
         uses: actions/upload-artifact@v4
         with:
-          name: v08-ci-reference
-          path: results/v08_ci_reference.json
+          name: v09-ci-reference
+          path: results/v09_ci_reference.json

@@ -183,3 +183,84 @@ def geometric_temperature(
     return start * math.exp(
         math.log(end / start) * fraction
     )
+
+
+class FactorizedTaskPermutationController(nn.Module):
+    """Low-bandwidth task-row query / shared-source-key permutation controller.
+
+    Scores are factorized as
+
+        score[t, i, j] = <query[t, i], key[j]> / sqrt(rank)
+
+    so parameter count is M * rank * (T + 1), versus T * M^2 for the full
+    TaskPermutationController.
+    """
+
+    def __init__(
+        self,
+        num_tasks: int,
+        num_modules: int,
+        rank: int,
+        *,
+        sinkhorn_iterations: int = 20,
+        init_scale: float = 0.05,
+    ) -> None:
+        super().__init__()
+        if num_tasks <= 0 or num_modules <= 1 or rank <= 0:
+            raise ValueError(
+                "num_tasks/rank must be positive and num_modules > 1"
+            )
+        self.num_tasks = num_tasks
+        self.num_modules = num_modules
+        self.rank = rank
+        self.sinkhorn_iterations = sinkhorn_iterations
+        self.query = nn.Parameter(
+            init_scale * torch.randn(num_tasks, num_modules, rank)
+        )
+        self.key = nn.Parameter(
+            init_scale * torch.randn(num_modules, rank)
+        )
+
+    def score_matrix(self, task_id: Tensor) -> Tensor:
+        query = self.query[task_id]
+        return torch.einsum(
+            "...ir,jr->...ij", query, self.key
+        ) / math.sqrt(self.rank)
+
+    def soft_matrix(
+        self,
+        task_id: Tensor,
+        *,
+        temperature: float = 1.0,
+    ) -> Tensor:
+        return sinkhorn_matrix(
+            self.score_matrix(task_id),
+            temperature=temperature,
+            iterations=self.sinkhorn_iterations,
+        )
+
+    @torch.no_grad()
+    def hard_permutation(
+        self,
+        task_id: Tensor,
+        *,
+        temperature: float = 0.1,
+    ) -> Tensor:
+        soft = self.soft_matrix(
+            task_id, temperature=temperature
+        )
+        return maximum_weight_permutation(soft)
+
+    @torch.no_grad()
+    def hard_matrix(
+        self,
+        task_id: Tensor,
+        *,
+        temperature: float = 0.1,
+    ) -> Tensor:
+        permutation = self.hard_permutation(
+            task_id, temperature=temperature
+        )
+        return permutation_matrix_batch(
+            permutation, dtype=self.query.dtype
+        )
