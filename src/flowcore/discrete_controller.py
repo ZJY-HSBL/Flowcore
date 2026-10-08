@@ -264,3 +264,92 @@ class FactorizedTaskPermutationController(nn.Module):
         return permutation_matrix_batch(
             permutation, dtype=self.query.dtype
         )
+
+
+class MatchingPermutationController(nn.Module):
+    """Shared content/context-conditioned permutation controller.
+
+    Source and target routing descriptors are projected into a common embedding
+    space.  Pairwise scores are normalized dot products, followed by Sinkhorn
+    during training and exact one-to-one assignment during hard execution.
+
+    No task-ID table is used.
+    """
+
+    def __init__(
+        self,
+        context_dim: int,
+        rank: int,
+        *,
+        sinkhorn_iterations: int = 20,
+        normalize: bool = True,
+    ) -> None:
+        super().__init__()
+        if context_dim <= 0 or rank <= 0:
+            raise ValueError("context_dim and rank must be positive")
+        self.context_dim = context_dim
+        self.rank = rank
+        self.sinkhorn_iterations = sinkhorn_iterations
+        self.normalize = normalize
+        self.source_projection = nn.Linear(
+            context_dim, rank, bias=False
+        )
+        self.target_projection = nn.Linear(
+            context_dim, rank, bias=False
+        )
+
+    def score_matrix(
+        self,
+        source_context: Tensor,
+        target_context: Tensor,
+    ) -> Tensor:
+        if source_context.shape != target_context.shape:
+            raise ValueError(
+                "source_context and target_context must have identical shapes"
+            )
+        if source_context.shape[-1] != self.context_dim:
+            raise ValueError("unexpected context dimension")
+
+        source = self.source_projection(source_context)
+        target = self.target_projection(target_context)
+        if self.normalize:
+            source = torch.nn.functional.normalize(
+                source, dim=-1, eps=1e-8
+            )
+            target = torch.nn.functional.normalize(
+                target, dim=-1, eps=1e-8
+            )
+            scale = 1.0
+        else:
+            scale = math.sqrt(self.rank)
+        return torch.matmul(
+            target, source.transpose(-1, -2)
+        ) / scale
+
+    def soft_matrix(
+        self,
+        source_context: Tensor,
+        target_context: Tensor,
+        *,
+        temperature: float = 1.0,
+    ) -> Tensor:
+        return sinkhorn_matrix(
+            self.score_matrix(source_context, target_context),
+            temperature=temperature,
+            iterations=self.sinkhorn_iterations,
+        )
+
+    @torch.no_grad()
+    def hard_permutation(
+        self,
+        source_context: Tensor,
+        target_context: Tensor,
+        *,
+        temperature: float = 0.1,
+    ) -> Tensor:
+        soft = self.soft_matrix(
+            source_context,
+            target_context,
+            temperature=temperature,
+        )
+        return maximum_weight_permutation(soft)

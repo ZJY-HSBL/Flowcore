@@ -22,24 +22,26 @@ jobs:
           python -m pip install pytest
       - name: Test
         run: pytest -q
-      - name: v0.9 factorized controller rank sweep
+      - name: v0.10 content-conditioned routing reference
         if: matrix.python-version == '3.11'
         run: |
-          python experiments/factorized_controller_sweep.py \
-            --ranks 1,2,3,4 \
-            --steps 300 \
+          python experiments/context_route_generalization.py \
+            --steps 450 \
             --seeds 0,1,2 \
             --batch 128 \
             --eval-batch 512 \
             --modules 6 \
             --local-dim 3 \
-            --tasks 4 \
+            --context-dim 6 \
+            --rank 6 \
             --time 16 \
+            --noise 0.03 \
+            --noise-multiplier 2 \
             --device cpu \
-            --output results/v09_ci_reference.json
-      - name: Upload v0.9 controller result
+            --output results/v10_ci_reference.json
+      - name: Upload v0.10 routing result
         if: matrix.python-version == '3.11'
         uses: actions/upload-artifact@v4
         with:
-          name: v09-ci-reference
-          path: results/v09_ci_reference.json
+          name: v10-ci-reference
+          path: results/v10_ci_reference.json

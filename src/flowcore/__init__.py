@@ -13,6 +13,7 @@ from .controller import RouteHoldController
 from .diagnostics import StateDiagnostics, relative_state_error, state_diagnostics
 from .discrete_controller import (
     FactorizedTaskPermutationController,
+    MatchingPermutationController,
     TaskPermutationController,
     geometric_temperature,
     maximum_weight_permutation,
@@ -83,6 +84,7 @@ __all__ = [
     "RouteHoldController",
     "TaskPermutationController",
     "FactorizedTaskPermutationController",
+    "MatchingPermutationController",
     "MultiPortInjector",
     "PortSelector",
     "PolicyAnchorBuffer",
@@ -138,4 +140,4 @@ __all__ = [
     "sequential_monomial_scan",
 ]
 
-__version__ = "0.9.0"
+__version__ = "0.10.0"

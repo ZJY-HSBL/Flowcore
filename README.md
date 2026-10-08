@@ -108,7 +108,7 @@ s = model(x, context=context, mode="sequential").states
 print((p - s).abs().max())
 ```
 
-## Implemented through v0.9
+## Implemented through v0.10
 
 - dense/block/diagonal affine operator composition
 - differentiable work-efficient Blelloch parallel scan (`O(T)` compositions, `O(log T)` depth)
@@ -137,6 +137,7 @@ print((p - s).abs().max())
 - Sinkhorn-relaxed task-to-permutation controller
 - exact maximum-weight hard assignment for monomial execution
 - factorized task-to-permutation controller and rank/bandwidth sweep
+- task-ID-free content/context matching controller for unseen permutations
 
 ## v0.2 parallelization status
 
@@ -423,6 +424,30 @@ All three seeds were exact at every rank.  The next bottleneck is therefore not
 controller rank but the explicit task-ID lookup itself.
 
 See [`docs/V0_9_REPORT.md`](docs/V0_9_REPORT.md).
+
+## v0.10 content-conditioned routing
+
+v0.10 removes the task-ID permutation table entirely.
+
+Each sample contains fresh random source-module addresses.  Target routing
+context contains the same latent addresses in a different observation basis and
+a fresh random order.  A shared controller projects both views into a common
+embedding space, produces pairwise matching scores, trains through Sinkhorn, and
+hard-projects to a Monomial permutation for exact execution.
+
+```bash
+python experiments/context_route_generalization.py \
+  --steps 500 \
+  --seeds 0,1,2 \
+  --modules 6 \
+  --context-dim 6 \
+  --rank 6
+```
+
+Every training and evaluation sample uses a newly generated permutation, so
+successful hard routing cannot come from memorizing a fixed task table.
+
+See [`docs/V0_10_REPORT.md`](docs/V0_10_REPORT.md).
 
 ## Deliberate limitations
 
