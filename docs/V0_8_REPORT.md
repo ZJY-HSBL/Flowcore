@@ -129,3 +129,61 @@ It would not yet show:
 - efficient GPU assignment projection.
 
 Those are separate next-stage problems.
+
+
+## 8. CI reference result
+
+GitHub Actions run 37799900510 executed the learned-controller reference with:
+
+```text
+steps=250
+seeds=0,1,2
+modules=6
+local_dim=3
+tasks=4
+time=16
+CPU
+```
+
+Every seed converged to the same result:
+
+```text
+soft_mse          0.000000
+hard_mse          0.000000
+slot_accuracy     1.0000
+entry_accuracy    1.0000
+task_exact        1.0000
+parallel_error    0.000e+00
+```
+
+The 35-test suite passed on the Python 3.11 reference job; Python 3.10 also
+passed in the same workflow.
+
+The controller contains 144 learned logits:
+
+\[
+T M^2 = 4 \times 6^2 = 144.
+\]
+
+The v0.6 route-vector baseline contains only 24:
+
+\[
+T M = 4 \times 6 = 24.
+\]
+
+So the learned exact routing result currently costs a 6x controller-parameter
+increase.
+
+## 9. Revised research question
+
+The v0.8 result removes one uncertainty: a differentiable Sinkhorn relaxation can
+discover the correct discrete permutations from behavioral reconstruction loss
+alone in this controlled setting.
+
+The next question is no longer whether discrete routing can be learned. It is:
+
+> How much controller bandwidth is actually required to learn the routing
+> family?
+
+A rank/factorization sweep should be preferred over immediately designing a
+larger controller.

@@ -360,6 +360,20 @@ python experiments/learn_discrete_route.py \
 The current exact assignment projection is intentionally small-scale
 (`O(M^2 2^M)`) and serves as a correctness reference, not a production router.
 
+The three-seed CI reference recovered all four arbitrary permutations exactly:
+
+```text
+soft MSE          0
+hard MSE          0
+slot accuracy     100%
+task exact        100%
+parallel error    0
+```
+
+The cost is controller bandwidth: 144 logits versus 24 values in the v0.6
+route-vector baseline.  The next experiment therefore scans factorized
+controller capacity rather than adding a larger router.
+
 See [`docs/V0_8_REPORT.md`](docs/V0_8_REPORT.md).
 
 ## Deliberate limitations
