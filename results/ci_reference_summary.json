@@ -128,6 +128,39 @@
         0.3
       ],
       "summary_rounded_from_ci_stdout": true
+    },
+    "v13": {
+      "run": "https://github.com/ZJY-HSBL/Flowcore/actions/runs/39018232214",
+      "artifact": "v13-ci-reference",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "steps": 350,
+      "train_modules": 6,
+      "eval_modules": [
+        6,
+        8
+      ],
+      "batch": 64,
+      "eval_batch": 64,
+      "context_dim": 6,
+      "local_dim": 3,
+      "bins": 8,
+      "margin": 0.1,
+      "margin_weight": 1,
+      "train_noise_range": [
+        0.03,
+        0.25
+      ],
+      "eval_noise": [
+        0.03,
+        0.12,
+        0.2,
+        0.3
+      ],
+      "summary_rounded_from_ci_stdout": true
     }
   },
   "v05": {
@@ -394,6 +427,228 @@
             0.15736,
             0.58094,
             0.92683
+          ]
+        },
+        "uniform_quantile": {
+          "slot_accuracy_pct": [
+            100,
+            94.79,
+            76.63,
+            54.36
+          ],
+          "permutation_exact_pct": [
+            100,
+            81.77,
+            44.27,
+            14.06
+          ],
+          "payload_mse": [
+            0,
+            0.08642,
+            0.43285,
+            0.9198
+          ]
+        },
+        "full_distance": {
+          "slot_accuracy_pct": [
+            100,
+            94.79,
+            76.63,
+            54.36
+          ],
+          "permutation_exact_pct": [
+            100,
+            81.77,
+            44.27,
+            14.06
+          ],
+          "payload_mse": [
+            0,
+            0.08642,
+            0.43285,
+            0.9198
+          ]
+        }
+      }
+    }
+  },
+  "v13": {
+    "learned_parameters_per_controller": 8,
+    "zero_parameter_baselines": 2,
+    "conditions": {
+      "6": {
+        "noise": [
+          0.03,
+          0.12,
+          0.2,
+          0.3
+        ],
+        "reconstruction": {
+          "slot_accuracy_pct": [
+            100,
+            93.23,
+            74.22,
+            59.46
+          ],
+          "permutation_exact_pct": [
+            100,
+            82.29,
+            45.31,
+            26.04
+          ],
+          "payload_mse": [
+            0,
+            0.16376,
+            0.53538,
+            0.87938
+          ]
+        },
+        "margin": {
+          "slot_accuracy_pct": [
+            100,
+            94.18,
+            77.08,
+            60.42
+          ],
+          "permutation_exact_pct": [
+            100,
+            84.38,
+            50,
+            23.96
+          ],
+          "payload_mse": [
+            0,
+            0.12589,
+            0.47707,
+            0.83336
+          ]
+        },
+        "hybrid": {
+          "slot_accuracy_pct": [
+            100,
+            93.75,
+            74.57,
+            59.81
+          ],
+          "permutation_exact_pct": [
+            100,
+            83.85,
+            46.88,
+            24.48
+          ],
+          "payload_mse": [
+            0,
+            0.15857,
+            0.5279,
+            0.85225
+          ]
+        },
+        "uniform_quantile": {
+          "slot_accuracy_pct": [
+            100,
+            94.53,
+            77.86,
+            60.94
+          ],
+          "permutation_exact_pct": [
+            100,
+            85.42,
+            53.65,
+            27.08
+          ],
+          "payload_mse": [
+            0,
+            0.115,
+            0.44465,
+            0.84538
+          ]
+        },
+        "full_distance": {
+          "slot_accuracy_pct": [
+            100,
+            94.27,
+            77.95,
+            61.63
+          ],
+          "permutation_exact_pct": [
+            100,
+            84.38,
+            52.08,
+            26.56
+          ],
+          "payload_mse": [
+            0,
+            0.1095,
+            0.45669,
+            0.81894
+          ]
+        }
+      },
+      "8": {
+        "noise": [
+          0.03,
+          0.12,
+          0.2,
+          0.3
+        ],
+        "reconstruction": {
+          "slot_accuracy_pct": [
+            100,
+            91.15,
+            69.27,
+            53.84
+          ],
+          "permutation_exact_pct": [
+            100,
+            69.27,
+            32.81,
+            14.06
+          ],
+          "payload_mse": [
+            0,
+            0.15736,
+            0.58094,
+            0.92683
+          ]
+        },
+        "margin": {
+          "slot_accuracy_pct": [
+            100,
+            95.18,
+            74.48,
+            53.26
+          ],
+          "permutation_exact_pct": [
+            100,
+            83.85,
+            37.5,
+            11.46
+          ],
+          "payload_mse": [
+            0,
+            0.07629,
+            0.47955,
+            0.93444
+          ]
+        },
+        "hybrid": {
+          "slot_accuracy_pct": [
+            100,
+            93.16,
+            70.44,
+            53.19
+          ],
+          "permutation_exact_pct": [
+            100,
+            74.48,
+            34.38,
+            14.06
+          ],
+          "payload_mse": [
+            0,
+            0.12166,
+            0.54961,
+            0.94252
           ]
         },
         "uniform_quantile": {

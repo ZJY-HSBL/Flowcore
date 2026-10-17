@@ -16,6 +16,7 @@ FIGURES = [
     "assets/v10-generalization.svg",
     "assets/v11-unseen-views.svg",
     "assets/v12-structural-metric.svg",
+    "assets/v13-loss-ablation.svg",
 ]
 
 
@@ -73,3 +74,10 @@ def test_reference_dataset_has_consistent_provenance_and_values():
     assert six["uniform_quantile"]["slot_accuracy_pct"][2] == 77.86
     assert eight["learned_quantile"]["slot_accuracy_pct"][2] == 69.27
     assert eight["uniform_quantile"]["slot_accuracy_pct"][2] == 76.63
+
+    v13 = data["v13"]
+    assert v13["learned_parameters_per_controller"] == 8
+    assert v13["zero_parameter_baselines"] == 2
+    assert v13["conditions"]["6"]["margin"]["slot_accuracy_pct"][2] == 77.08
+    assert v13["conditions"]["8"]["margin"]["slot_accuracy_pct"][2] == 74.48
+    assert v13["conditions"]["8"]["uniform_quantile"]["slot_accuracy_pct"][2] == 76.63

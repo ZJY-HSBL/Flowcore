@@ -229,32 +229,49 @@ python experiments/structural_metric_stress.py --steps 350 --seeds 0,1,2
 
 See [v0.12 report](docs/V0_12_REPORT.md) and [full result provenance](docs/RESULTS.md).
 
-## v0.13 — Training objective ablation
+## v0.13 — Assignment-margin loss versus reconstruction
 
-v0.12's learned metric underperformed its zero-parameter baselines under higher
-noise. v0.13 tests three different training objectives, **holding the eight
-trainable metric weights, data generation, random seeds and optimizer fixed**:
+![Five-method v0.13 noise curves for six trained and eight unseen modules](assets/v13-loss-ablation.svg)
 
-- soft Sinkhorn payload-reconstruction MSE (v0.12 reference);
-- bidirectional hardest-negative assignment margin;
-- reconstruction plus the matching margin.
+All three learned methods share the same **eight metric parameters**, fixed
+optimization budget, initialization, training batches and evaluation examples.
+The only intervention is the objective: reconstruction, bidirectional matching
+margin, or a 1:1 combination. Two independent **zero-parameter geometric
+baselines** are evaluated alongside them.
 
-The correspondence targets used by the margin are **derived from the same
-source/target payload pairs already used for reconstruction**. This does not
-require additional data, but exposes matching supervision more explicitly.
-Thus v0.13 isolates the effect of stronger assignment-directed supervision,
-not necessarily a free optimization improvement.
+| Modules | Noise | Reconstruction | Margin | Hybrid | Uniform (0p) | Full distance (0p) |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 6 | 0.03 | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% |
+| 6 | 0.12 | 93.23% | 94.18% | 93.75% | 94.53% | 94.27% |
+| 6 | 0.20 | 74.22% | 77.08% | 74.57% | 77.86% | 77.95% |
+| 6 | 0.30 | 59.46% | 60.42% | 59.81% | 60.94% | 61.63% |
+| 8 | 0.03 | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% |
+| 8 | 0.12 | 91.15% | 95.18% | 93.16% | 94.79% | 94.79% |
+| 8 | 0.20 | 69.27% | 74.48% | 70.44% | 76.63% | 76.63% |
+| 8 | 0.30 | 53.84% | 53.26% | 53.19% | 54.36% | 54.36% |
 
-Two independent zero-parameter geometric baselines remain in every evaluation.
-The benchmark includes fresh coordinate frames, seen M=6 and unseen M=8 module
-counts, four noise levels and three seeds.
+*Hard slot accuracy (%), three-seed means.*
+
+**Result:** Margin improves upon reconstruction in several moderate-noise
+settings, but **does not consistently beat the analytical baselines**. At unseen
+M=8 and noise 0.20, Margin rises from 69.27% to 74.48% (+5.21 points)
+while remaining below the zero-parameter 76.63% (-2.15 points). At M=8,
+noise 0.12 it narrowly leads 95.18% versus 94.79% (+0.39 points); three
+seeds and multiple tested conditions do not establish that as significant.
+
+**Supervision caveat:** The margin objective recovers exact correspondence
+indices from the *same input/target payload pairs* available to reconstruction.
+No extra dataset is used, but this is **more direct assignment supervision**.
+
+[Completed v0.13 CI run and per-seed JSON artifact](https://github.com/ZJY-HSBL/Flowcore/actions/runs/39018232214);
+**52 tests passed** across Python 3.10/3.11/3.12.
 
 ```bash
 python experiments/route_loss_comparison.py --steps 350 --seeds 0,1,2
 ```
 
-Numerical results will be added after CI verification. See
-[the v0.13 protocol](docs/V0_13_REPORT.md).
+See [v0.13 report](docs/V0_13_REPORT.md) and
+[measurement provenance](docs/RESULTS.md).
 
 ## Scope and next research questions
 
@@ -276,5 +293,5 @@ and high-dimensional sequence benchmarks.
 **Documentation:** [Architecture](docs/ARCHITECTURE.md) ·
 [Roadmap](docs/ROADMAP.md) ·
 [Experiments and provenance](docs/RESULTS.md) ·
-[v0.10 report](docs/V0_10_REPORT.md) ·
+[v0.13 report](docs/V0_13_REPORT.md) ·
 [MIT License](LICENSE)

@@ -204,3 +204,45 @@ python experiments/structural_metric_stress.py \
 ```
 
 CI passed **48 tests** on Python 3.10, 3.11 and 3.12.
+
+## v0.13 — Fixed-capacity objective intervention
+
+Source: [CI run 39018232214](https://github.com/ZJY-HSBL/Flowcore/actions/runs/39018232214),
+raw per-seed artifact `v13-ci-reference`. Rounded CI console aggregates:
+`results/ci_reference_summary.json`.
+
+CPU, 3 seeds, 350 updates, batch/evaluation batch 64, training M=6,
+evaluation M=6 and M=8. Four noise levels 0.03/0.12/0.20/0.30,
+training noise uniform [0.03,0.25]. All training objectives use the same
+eight-parameter positive quantile metric and identical train/eval examples.
+
+**Mean hard slot accuracy (%):**
+
+| Modules | Noise | Reconstruction | Margin | Hybrid | Uniform (0p) | Full distance (0p) |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 6 | 0.03 | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% |
+| 6 | 0.12 | 93.23% | 94.18% | 93.75% | 94.53% | 94.27% |
+| 6 | 0.20 | 74.22% | 77.08% | 74.57% | 77.86% | 77.95% |
+| 6 | 0.30 | 59.46% | 60.42% | 59.81% | 60.94% | 61.63% |
+| 8 | 0.03 | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% |
+| 8 | 0.12 | 91.15% | 95.18% | 93.16% | 94.79% | 94.79% |
+| 8 | 0.20 | 69.27% | 74.48% | 70.44% | 76.63% | 76.63% |
+| 8 | 0.30 | 53.84% | 53.26% | 53.19% | 54.36% | 54.36% |
+
+At M=8 noise=0.20, whole-permutation accuracy is 32.81% reconstruction,
+37.50% margin, 34.38% hybrid, and 44.27% for each zero-parameter control.
+
+Training correspondence targets for margin are inferred from exact
+source/target payload pairs; this extracts explicit assignment supervision
+from the existing data and therefore is a stronger learning signal than
+pure soft payload reconstruction.
+
+```bash
+python experiments/route_loss_comparison.py \
+  --steps 350 --seeds 0,1,2 --batch 64 --eval-batch 64 \
+  --train-modules 6 --eval-modules 6,8 \
+  --eval-noises 0.03,0.12,0.20,0.30 \
+  --margin 0.1 --margin-weight 1.0 --device cpu
+```
+
+52 tests passed on Python 3.10/3.11/3.12.
