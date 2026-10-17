@@ -38,6 +38,7 @@ from .invariant_router import (
 )
 from .route_losses import (
     bidirectional_hard_negative_margin,
+    global_permutation_hinge,
     infer_payload_correspondence,
 )
 from .structural_controller import (
@@ -103,6 +104,7 @@ __all__ = [
     "InvariantPermutationController",
     "QuantileInvariantPermutationController",
     "bidirectional_hard_negative_margin",
+    "global_permutation_hinge",
     "infer_payload_correspondence",
     "quantile_distance_fingerprints",
     "distance_fingerprints",
@@ -160,4 +162,4 @@ __all__ = [
     "sequential_monomial_scan",
 ]
 
-__version__ = "0.13.0"
+__version__ = "0.14.0"

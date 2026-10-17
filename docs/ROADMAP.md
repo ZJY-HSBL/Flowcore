@@ -141,3 +141,13 @@ Validation added in v0.5:
 - Include uniform-quantile and full-distance **zero-parameter** controls.
 - Check unseen module counts, independent view changes, and noisy datasets.
 - Do not claim gains before comparing CI results; retain negative outcomes.
+
+## Phase 3E — global assignment-aware learning (v0.14)
+
+- Keep the eight-parameter invariant quantile metric unchanged.
+- Train global structured max-margin against the highest-scoring incorrect
+  full permutation; compare local margin, reconstruction, and two hybrids.
+- Use exhaustive M! oracle only at training M=6, with explicit small-M bound.
+- Preserve two zero-trainable-parameter analytic geometric baselines.
+- Report unseen M=8, noise sweep and all per-seed whole-permutation metrics.
+- Avoid declaring gains from a single noise condition or tiny differences.

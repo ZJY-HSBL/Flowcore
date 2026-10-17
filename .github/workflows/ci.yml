@@ -79,6 +79,26 @@ jobs:
             --eval-noises 0.03,0.12,0.20,0.30 \
             --device cpu \
             --output results/v13_ci_reference.json
+      - name: v0.14 global assignment-margin reference
+        if: matrix.python-version == '3.11'
+        run: |
+          python experiments/global_assignment_stress.py \
+            --steps 350 \
+            --seeds 0,1,2 \
+            --batch 64 \
+            --eval-batch 64 \
+            --train-modules 6 \
+            --eval-modules 6,8 \
+            --eval-noises 0.03,0.12,0.20,0.30 \
+            --max-exact-modules 8 \
+            --device cpu \
+            --output results/v14_ci_reference.json
+      - name: Upload v0.14 global assignment result
+        if: matrix.python-version == '3.11'
+        uses: actions/upload-artifact@v4
+        with:
+          name: v14-ci-reference
+          path: results/v14_ci_reference.json
       - name: Upload v0.13 loss result
         if: matrix.python-version == '3.11'
         uses: actions/upload-artifact@v4

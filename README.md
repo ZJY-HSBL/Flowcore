@@ -14,7 +14,7 @@ Route, Hold and multi-port injection provide configurable dynamic behavior.
 
 ![FlowCore pipeline: encoding, injection, control, structured operators, parallel scan and readout](assets/flowcore-pipeline.svg)
 
-> **Research status — v0.13.0.** The figures below are *real recorded CI reference
+> **Research status — v0.14.0.** The figures below are *real recorded CI reference
 > measurements on synthetic tasks*, not fabricated projections. They do not
 > establish AGI capabilities, generic sequence-model superiority, GPU speedups,
 > or effectiveness on natural-language/vision tasks.
@@ -272,6 +272,35 @@ python experiments/route_loss_comparison.py --steps 350 --seeds 0,1,2
 
 See [v0.13 report](docs/V0_13_REPORT.md) and
 [measurement provenance](docs/RESULTS.md).
+
+## v0.14 — Whole-permutation structured margin
+
+The previous local hinge compared target/source rows and columns separately.
+v0.14 adds a **global structured margin** by comparing the correct full
+one-to-one assignment with the highest-scoring *incorrect* permutation:
+
+```text
+global_loss = relu(margin + avg_score(best_wrong_permutation)
+                            - avg_score(correct_permutation))
+```
+
+In this small-M research test, the competing assignment is computed by
+exhaustively enumerating permutations during training (M=6 → 720
+candidates). This is *not scalable* as-is and does not alter the exact
+Monomial inference scan.
+
+Five matched eight-parameter learning objectives (reconstruction, local
+margin, local hybrid, global margin, global hybrid) and both zero-parameter
+geometric baselines are compared on identical synthetic data and fresh
+orthogonal observation views. The margin objectives derive matching labels
+from existing payload pairs—stronger explicit supervision than reconstruction.
+
+```bash
+python experiments/global_assignment_stress.py --steps 350 --seeds 0,1,2
+```
+
+Measured results and figures will be added only after CI completes.
+See [the v0.14 protocol](docs/V0_14_REPORT.md).
 
 ## Scope and next research questions
 
