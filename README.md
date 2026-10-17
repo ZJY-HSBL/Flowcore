@@ -14,7 +14,7 @@ Route, Hold and multi-port injection provide configurable dynamic behavior.
 
 ![FlowCore pipeline: encoding, injection, control, structured operators, parallel scan and readout](assets/flowcore-pipeline.svg)
 
-> **Research status — v0.12.0.** The figures below are *real recorded CI reference
+> **Research status — v0.13.0.** The figures below are *real recorded CI reference
 > measurements on synthetic tasks*, not fabricated projections. They do not
 > establish AGI capabilities, generic sequence-model superiority, GPU speedups,
 > or effectiveness on natural-language/vision tasks.
@@ -228,6 +228,33 @@ python experiments/structural_metric_stress.py --steps 350 --seeds 0,1,2
 ```
 
 See [v0.12 report](docs/V0_12_REPORT.md) and [full result provenance](docs/RESULTS.md).
+
+## v0.13 — Training objective ablation
+
+v0.12's learned metric underperformed its zero-parameter baselines under higher
+noise. v0.13 tests three different training objectives, **holding the eight
+trainable metric weights, data generation, random seeds and optimizer fixed**:
+
+- soft Sinkhorn payload-reconstruction MSE (v0.12 reference);
+- bidirectional hardest-negative assignment margin;
+- reconstruction plus the matching margin.
+
+The correspondence targets used by the margin are **derived from the same
+source/target payload pairs already used for reconstruction**. This does not
+require additional data, but exposes matching supervision more explicitly.
+Thus v0.13 isolates the effect of stronger assignment-directed supervision,
+not necessarily a free optimization improvement.
+
+Two independent zero-parameter geometric baselines remain in every evaluation.
+The benchmark includes fresh coordinate frames, seen M=6 and unseen M=8 module
+counts, four noise levels and three seeds.
+
+```bash
+python experiments/route_loss_comparison.py --steps 350 --seeds 0,1,2
+```
+
+Numerical results will be added after CI verification. See
+[the v0.13 protocol](docs/V0_13_REPORT.md).
 
 ## Scope and next research questions
 

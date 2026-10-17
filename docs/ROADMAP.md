@@ -130,3 +130,14 @@ Validation added in v0.5:
 - Probe unseen module count 8 after training on count 6, plus noise levels
   0.03, 0.12, 0.20, 0.30.
 - Publish per-seed CI data and clearly document regression, if any.
+
+## Phase 3D — hard matching objective ablation (v0.13)
+
+- Keep the eight-parameter quantile-invariant metric unchanged.
+- Evaluate soft reconstruction, bidirectional hard-negative margin and their
+  fixed-weight combination on exactly the same minibatches.
+- Infer margin alignment indices from already observed payload pairs; document
+  their stronger correspondence supervision.
+- Include uniform-quantile and full-distance **zero-parameter** controls.
+- Check unseen module counts, independent view changes, and noisy datasets.
+- Do not claim gains before comparing CI results; retain negative outcomes.

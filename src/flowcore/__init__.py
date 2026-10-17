@@ -36,6 +36,10 @@ from .invariant_router import (
     distance_fingerprints,
     invariant_matching_scores,
 )
+from .route_losses import (
+    bidirectional_hard_negative_margin,
+    infer_payload_correspondence,
+)
 from .structural_controller import (
     QuantileInvariantPermutationController,
     quantile_distance_fingerprints,
@@ -98,6 +102,8 @@ __all__ = [
     "PortSelector",
     "InvariantPermutationController",
     "QuantileInvariantPermutationController",
+    "bidirectional_hard_negative_margin",
+    "infer_payload_correspondence",
     "quantile_distance_fingerprints",
     "distance_fingerprints",
     "invariant_matching_scores",
@@ -154,4 +160,4 @@ __all__ = [
     "sequential_monomial_scan",
 ]
 
-__version__ = "0.12.0"
+__version__ = "0.13.0"
