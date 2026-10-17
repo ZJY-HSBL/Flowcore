@@ -1,480 +1,193 @@
 # FlowCore
 
-**FlowCore** is an experimental PyTorch library for building **parallelizable
-dynamic substrates** from composable discrete-time operators.
+[![CI](https://github.com/ZJY-HSBL/Flowcore/actions/workflows/ci.yml/badge.svg)](https://github.com/ZJY-HSBL/Flowcore/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.2%2B-EE4C2C)
+![Research](https://img.shields.io/badge/status-research%20prototype-6366F1)
 
-The project starts from a simple idea: keep the benefits of persistent recurrent
-state and dynamic Route/Hold control, but express the substrate as an associative
-operator sequence that can be evaluated with a parallel prefix scan.
+**Composable discrete dynamics · Parallel prefix scan · Dynamic routing**
 
-> Status: research prototype.  This repository implements the mathematical and
-> software kernel, not the full long-term cognitive architecture.
+FlowCore is an experimental PyTorch research library for persistent-state
+neural computation. It represents time evolution as structured, associative
+transition operators, then evaluates them with a work-efficient parallel scan.
+Route, Hold and multi-port injection provide configurable dynamic behavior.
 
-## Core abstraction
+![FlowCore pipeline: encoding, injection, control, structured operators, parallel scan and readout](assets/flowcore-pipeline.svg)
 
-For each time step, FlowCore constructs an affine transition
+> **Research status — v0.10.0.** The figures below are *real recorded CI reference
+> measurements on synthetic tasks*, not fabricated projections. They do not
+> establish AGI capabilities, generic sequence-model superiority, GPU speedups,
+> or effectiveness on natural-language/vision tasks.
+
+## The mathematical idea
+
+For affine dynamics:
 
 ```text
 h[t+1] = A[t] h[t] + b[t]
+
+(A2, b2) ∘ (A1, b1) = (A2 A1, A2 b1 + b2)
 ```
 
-with
+Operator composition is associative. FlowCore implements a work-efficient
+Blelloch scan with **O(T) operator compositions** and **O(log T) dependency
+depth**. This is an algorithmic property, **not** an unconditional throughput
+claim: operator composition can be more expensive than serial matvecs.
 
-```text
-A[t] <- long-term W + Route + Hold
-b[t] <- multi-port B_k injection + Hold
-```
+The project tests four substrate families: block-local affine, spectral-
+Kronecker, circulant/FFT-Kronecker, and monomial permutation × gain. The first
+three are selectable via `FlowCoreModel`; the monomial family is currently an
+independent exact-scan primitive used with discrete controllers.
 
-Affine transitions compose associatively:
+## Experiments and measured results
 
-```text
-(A2,b2) o (A1,b1) = (A2 A1, A2 b1 + b2)
-```
+The charts use data from [`results/ci_reference_summary.json`](results/ci_reference_summary.json).
+**Each version has a different controlled protocol**, so cross-version figures
+must not be treated as a single matched leaderboard. Full protocols, limitations,
+and links to the original CI runs are in [Experiment results](docs/RESULTS.md).
 
-so an entire sequence can be evaluated through a vectorized parallel scan.
+### v0.5 — Can information move between physical modules?
 
-## Architecture
+![Target-module energy delivery by substrate in the v0.5 CI experiment](assets/v05-delivery.svg)
 
-```text
-input/context
-     |
-  Encoder
-     |
-     +------------------+
-     |                  |
-Port selector      Route/Hold controller
-     |                  |
- B1 B2 ... Bk            |
-     |                  |
-     +------ injection --+
-              |
-      ParallelFlowSubstrate
-      (block affine operators)
-              |
-        parallel scan
-              |
-          persistent state
-              |
-           Readout
-```
+| Backend | Target-module energy | Long-horizon target MSE |
+| :-- | --: | --: |
+| Block-local | 0.00% | 0.97018 |
+| Spectral-Kronecker | 12.56% | 0.55690 |
+| **Circulant-Kronecker** | **99.88%** | **0.00320** |
 
-The base model is exactly parallelizable because the controller is exogenous to
-current recurrent state.  `RefinedFlowCoreModel` adds state-conditioned control
-using a fixed number of predict-correct scan rounds.
+Three seeds, 4 modules, 1D local state, fixed input source and trainable destination
+Route policy with frozen substrate; [CI run and artifact](https://github.com/ZJY-HSBL/Flowcore/actions/runs/37742036277).
+Circulant performs well on this *translation-aligned* task.
 
-## Why block operators?
+### v0.6 — Where does circulant routing fail?
 
-Dense affine scans are useful as a correctness reference but composing dense
-matrices costs too much for large state sizes.  The default substrate uses many
-small block-local operators.  This gives a closed operator family with practical
-vectorized composition while leaving room for richer hierarchical cross-module
-routing later.
+![Cyclic versus arbitrary permutation slot accuracy by substrate](assets/v06-stress.svg)
 
-## Quick start
+| Backend | Cyclic slot accuracy | Arbitrary slot accuracy |
+| :-- | --: | --: |
+| Block-local | 16.62% | 23.18% |
+| Spectral-Kronecker | 16.60% | 18.45% |
+| **Circulant-Kronecker** | **99.09%** | **27.47%** |
+
+Three seeds, 6 modules, 2D local state, simultaneous multi-source payloads;
+[CI run](https://github.com/ZJY-HSBL/Flowcore/actions/runs/37797719671).
+The **0.81384** normalized analytic projection error on the arbitrary family
+shows a *representation limitation*, not only a training failure.
+
+### v0.7–v0.9 — Exact arbitrary routing and controller compression
+
+v0.7 added an associative **monomial operator** (one-to-one permutation × gain):
+the supplied-permutation oracle achieved **zero MSE**, **100% slot accuracy**
+and **zero parallel/sequential error**
+([v0.7 CI](https://github.com/ZJY-HSBL/Flowcore/actions/runs/37798579002)).
+v0.8 then learned all four fixed arbitrary permutations through Sinkhorn
+relaxation and hard assignment from payload reconstruction loss
+([v0.8 CI](https://github.com/ZJY-HSBL/Flowcore/actions/runs/37799900510)).
+
+![v0.9 controller parameter count with 100% exact task accuracy at every tested rank](assets/v09-controller.svg)
+
+| Controller | Parameters | Hard whole-task exact |
+| :-- | --: | --: |
+| Rank 1 | **30** | **100%** |
+| Rank 2 | 60 | 100% |
+| Rank 3 | 90 | 100% |
+| Rank 4 | 120 | 100% |
+| v0.8 full task table | 144 | 100% |
+
+v0.9: three seeds, four **fixed** 6-module tasks; [CI rank sweep](https://github.com/ZJY-HSBL/Flowcore/actions/runs/37800868426).
+The 30-parameter result establishes compression **on this task bank only**; it
+does not mean rank 1 can encode every possible permutation family.
+
+### v0.10 — Learn routing from content, without task IDs
+
+![v0.10 CI summary: unseen, exact permutation, and doubled-noise routing scores](assets/v10-generalization.svg)
+
+Each training/evaluation batch regenerates source descriptors and random
+permutations. A shared **72-parameter** matching controller learns to align
+source and target descriptors observed through two fixed but different views.
+
+| v0.10 metric | Seed 0 | Seed 1 | Seed 2 | Mean |
+| :-- | --: | --: | --: | --: |
+| Soft Sinkhorn MSE | 0.001702 | 0.002464 | 0.001807 | **0.001991** |
+| Hard execution MSE | 0 | 0 | 0 | **0** |
+| Unseen permutation exact | 100% | 100% | 100% | **100%** |
+| 2× noise slot accuracy | 100% | 100% | 100% | **100%** |
+| Parallel/sequential error | 0 | 0 | 0 | **0** |
+
+3 seeds, 6 modules, 3D payloads, 450 updates, context noise 0.03 (2× = 0.06),
+512 evaluation samples per seed; [v0.10 CI + JSON artifact](https://github.com/ZJY-HSBL/Flowcore/actions/runs/37801859799).
+All **39 tests passed** on Python 3.10, 3.11 and 3.12. These measurements
+demonstrate *synthetic content-conditioned matching*, not novel semantic
+reasoning. The two views remain fixed within each training run.
+
+## Installation and quick start
 
 ```bash
-pip install -e .
+git clone https://github.com/ZJY-HSBL/Flowcore.git
+cd Flowcore
+python -m pip install -e ".[dev]"
+pytest -q
 python examples/toy_delayed_copy.py
 ```
-
-Or:
 
 ```python
 import torch
 from flowcore import FlowConfig, FlowCoreModel
 
-cfg = FlowConfig(
-    input_dim=16,
-    output_dim=4,
-    state_dim=256,
-    block_size=8,
-    num_ports=8,
-    active_ports=2,
-    context_dim=32,
+config = FlowConfig(
+    input_dim=16, output_dim=4,
+    state_dim=256, block_size=8,
+    num_ports=8, active_ports=2, context_dim=32,
+    substrate_kind="circulant_kronecker",  # or "block", "spectral_kronecker"
 )
-model = FlowCoreModel(cfg)
+model = FlowCoreModel(config)
 
 x = torch.randn(8, 128, 16)
 context = torch.randn(8, 32)
-out = model(x, context=context, mode="parallel")
-print(out.output.shape)  # [8, 128, 4]
+parallel = model(x, context=context, mode="parallel")
+sequential = model(x, context=context, mode="sequential")
+print(parallel.output.shape)                          # (8, 128, 4)
+print((parallel.states - sequential.states).abs().max().item())
 ```
 
-The sequential reference should agree with the parallel scan:
+## Reproduce the figures
 
-```python
-p = model(x, context=context, mode="parallel").states
-s = model(x, context=context, mode="sequential").states
-print((p - s).abs().max())
-```
-
-## Implemented through v0.10
-
-- dense/block/diagonal affine operator composition
-- differentiable work-efficient Blelloch parallel scan (`O(T)` compositions, `O(log T)` depth)
-- Hillis-Steele scan retained as a reference backend
-- opt-in `torch.compile` scan wrapper
-- sequential reference recurrence
-- block-local trainable long-term substrate `W`
-- dynamic Route and Hold controls
-- top-k normalized multi-port injection `B_k`
-- disjoint candidate input basins
-- one-pass exact FlowCore model
-- predict-correct state-conditioned refinement model
-- Route/Hold policy-anchor buffer
-- correctness and gradient-equivalence tests
-- delayed-memory example and configurable scan microbenchmark
-- long-horizon stability diagnostics and v0.2 kernel report
-- exact spectral-Kronecker cross-module routing backend
-- shared-basis global communication with elementwise modal composition
-- end-to-end `substrate_kind="spectral_kronecker"` model option
-- directional circulant/FFT cross-module routing backend
-- exact frequency-domain composition with cyclic transport\n- matched physical cross-module transport benchmark\n- equal-size destination-to-Route policy comparison across all three substrates\n- direct delivery/leakage/persistence/runtime metrics
-- simultaneous multi-source permutation stress benchmark
-- analytic projection-error ceilings for block/spectral/circulant routing
-- exact monomial permutation x gain operator family
-- work-efficient parallel scan for arbitrary one-to-one module routing
-- Sinkhorn-relaxed task-to-permutation controller
-- exact maximum-weight hard assignment for monomial execution
-- factorized task-to-permutation controller and rank/bandwidth sweep
-- task-ID-free content/context matching controller for unseen permutations
-
-## v0.2 parallelization status
-
-FlowCore now uses a work-efficient Blelloch scan by default.  For power-of-two
-sequence length `T`, the tree performs `3T-2` affine compositions, versus the
-`O(T log T)` work of the v0.1 Hillis-Steele implementation.  The test suite
-checks state and gradient equivalence against serial recurrence.
-
-`torch.compile` is available through `make_compiled_scan()` and the benchmark
-script can compare sequential, Hillis-Steele, Blelloch and compiled Blelloch
-execution.  CPU smoke results are documented in
-[`docs/V0_2_REPORT.md`](docs/V0_2_REPORT.md); CUDA results are still required
-before making general performance claims.
+The curated CI data are checked into
+[`results/ci_reference_summary.json`](results/ci_reference_summary.json).
+These are **recorded reference numbers**, not a substitution for running the
+experiments yourself. Representative commands:
 
 ```bash
-python benchmarks/benchmark_scan.py --device auto --lengths 128,512,2048
-python experiments/stability_sweep.py --lengths 128,512,2048
+python experiments/compare_substrates.py --steps 120 --seeds 0,1,2 --modules 4 --local-dim 1 --train-time 4 --long-time 16
+python experiments/arbitrary_routing_stress.py --steps 100 --seeds 0,1,2 --modules 6 --local-dim 2 --tasks 4 --long-time 16
+python experiments/factorized_controller_sweep.py --steps 300 --seeds 0,1,2 --ranks 1,2,3,4
+python experiments/context_route_generalization.py --steps 450 --seeds 0,1,2 --modules 6 --context-dim 6 --rank 6
 ```
 
-## v0.3 cross-module routing
-
-The original block backend is exactly scan-friendly but has no communication
-between blocks inside a scan pass.  v0.3 adds an optional structured backend:
-
-```python
-cfg = FlowConfig(
-    input_dim=16,
-    output_dim=4,
-    state_dim=256,
-    block_size=8,
-    num_ports=8,
-    context_dim=32,
-    substrate_kind="spectral_kronecker",
-)
-model = FlowCoreModel(cfg)
-```
-
-It represents state as modules x local-state and uses
-
-```text
-H[t+1] = R[t] H[t] L[t]^T + B[t]
-R[t]   = Q diag(g[t]) Q^T
-```
-
-All routing matrices share the orthogonal basis `Q`, so composition is exact:
-
-```text
-g[2:1] = g[2] * g[1]
-L[2:1] = L[2] @ L[1]
-```
-
-This creates real cross-module signal transfer while retaining an associative
-operator family.  The trade-off is expressiveness: v0.3 routing is structured
-and simultaneously diagonalizable, not an arbitrary directed sparse graph.
-
-See [`docs/V0_3_REPORT.md`](docs/V0_3_REPORT.md) and run:
-
-```bash
-python experiments/cross_module_transfer.py
-```
-
-## v0.4 directional FFT routing
-
-v0.4 adds a second exact cross-module backend:
-
-```python
-cfg = FlowConfig(
-    input_dim=16,
-    output_dim=4,
-    state_dim=256,
-    block_size=8,
-    num_ports=8,
-    context_dim=32,
-    substrate_kind="circulant_kronecker",
-)
-```
-
-Module routing is represented by a real circular kernel `k[t]`.  The runtime
-uses its FFT spectrum:
-
-```text
-R[t] x = IFFT( FFT(k[t]) * FFT(x) )
-```
-
-and composition is exact:
-
-```text
-spectrum[2:1] = spectrum[2] * spectrum[1]
-```
-
-Unlike the v0.3 shared-orthogonal-basis backend, a circulant kernel can encode
-directional cyclic movement between modules.  The remaining restriction is
-translation structure: every module uses the same relative routing offsets.
-
-See [`docs/V0_4_REPORT.md`](docs/V0_4_REPORT.md).
-
-## v0.5 matched substrate benchmark
-
-v0.5 adds a common physical transport task.  A payload enters only module 0 and
-the requested destination must contain that payload after one routing event.
-There is no learned readout that can bypass the substrate.
-
-By default, all three substrates are calibrated to identity-like local dynamics
-and frozen; each receives the same `M x M` destination-to-Route policy.
-
-```bash
-python experiments/compare_substrates.py \
-  --steps 400 \
-  --seeds 0,1,2,3,4 \
-  --modules 8 \
-  --local-dim 2 \
-  --long-time 64
-```
-
-The JSON output reports target MSE, non-target leakage, physical delivery
-fraction, persistence, parallel/sequential agreement and runtime.  Use
-`--train-substrate` for the joint-learning regime.
-
-A three-seed CI reference profile (4 modules, 1D local state, 120 route-policy
-updates, frozen substrates) produced:
-
-| backend | long MSE | target energy delivery |
-| --- | ---: | ---: |
-| block | 0.97018 | 0.00% |
-| spectral-Kronecker | 0.55690 | 12.56% |
-| circulant-Kronecker | 0.00320 | 99.88% |
-
-This is a deliberately narrow transport benchmark, not a general sequence-model
-ranking.  At the short T=16 CPU profile, the parallel scan was also slower than
-the sequential recurrence for all three backends.
-
-See [`docs/V0_5_REPORT.md`](docs/V0_5_REPORT.md).
-
-## v0.6 arbitrary routing stress test
-
-v0.6 replaces the single-source transport assumption with simultaneous payloads
-in every module.  One dynamic operator must implement an entire permutation.
-
-Two task families are compared:
-
-- cyclic shifts, which are an exact positive control for circulant routing;
-- non-cyclic random permutations, which deliberately violate translation
-  structure.
-
-The experiment also computes the best analytic projection of every target
-permutation into the current block, shared-basis spectral and circulant matrix
-families.  This separates optimization failure from representation limits.
-
-```bash
-python experiments/arbitrary_routing_stress.py \
-  --steps 250 \
-  --seeds 0,1,2 \
-  --modules 6 \
-  --local-dim 3 \
-  --tasks 4
-```
-
-A three-seed CI reference run confirmed the intended stress pattern:
-
-| family | backend | MSE | slot accuracy | analytic error |
-| --- | --- | ---: | ---: | ---: |
-| cyclic | circulant | 0.00575 | 99.09% | 0.0000 |
-| arbitrary | circulant | 0.65722 | 27.47% | 0.81384 |
-
-The arbitrary failure tracks a large analytic projection error, so the next
-operator family must increase representational freedom rather than only tuning
-optimization.
-
-See [`docs/V0_6_REPORT.md`](docs/V0_6_REPORT.md).
-
-## v0.7 monomial routing primitive
-
-v0.7 adds an exact algebraic primitive for arbitrary one-to-one routing:
-
-```text
-output[i] = gain[i] * input[permutation[i]]
-```
-
-Permutation/gain operators are closed under composition, so arbitrary
-permutations can participate in the same work-efficient temporal scan without
-materializing dense module matrices.
-
-```bash
-python experiments/monomial_oracle.py
-```
-
-This is deliberately an oracle-level substrate primitive, not yet a normal
-`FlowCoreModel` backend.  The unresolved problem is how a learned controller
-should produce discrete permutations while preserving exact execution.
-
-The CI oracle on four non-cyclic 6-module permutations produced exactly:
-
-```text
-MSE             0
-relative MSE    0
-slot accuracy   100%
-parallel error  0
-```
-
-This proves the algebraic substrate can express the v0.6 failure cases exactly.
-It does **not** prove that a neural controller can learn the required discrete
-permutations.
-
-See [`docs/V0_7_REPORT.md`](docs/V0_7_REPORT.md).
-
-## v0.8 learned discrete route controller
-
-v0.8 trains a task-conditioned permutation controller using only payload
-reconstruction loss.  Training uses a Sinkhorn-relaxed doubly-stochastic matrix;
-execution projects it to an exact permutation and runs the monomial parallel
-scan.
-
-```bash
-python experiments/learn_discrete_route.py \
-  --steps 300 \
-  --seeds 0,1,2 \
-  --modules 6 \
-  --local-dim 3 \
-  --tasks 4
-```
-
-The current exact assignment projection is intentionally small-scale
-(`O(M^2 2^M)`) and serves as a correctness reference, not a production router.
-
-The three-seed CI reference recovered all four arbitrary permutations exactly:
-
-```text
-soft MSE          0
-hard MSE          0
-slot accuracy     100%
-task exact        100%
-parallel error    0
-```
-
-The cost is controller bandwidth: 144 logits versus 24 values in the v0.6
-route-vector baseline.  The next experiment therefore scans factorized
-controller capacity rather than adding a larger router.
-
-See [`docs/V0_8_REPORT.md`](docs/V0_8_REPORT.md).
-
-## v0.9 factorized controller bandwidth sweep
-
-v0.9 keeps the v0.8 Sinkhorn-to-monomial execution pipeline unchanged and
-compresses only the route controller.
-
-The full controller stores one `M x M` score matrix per task.  The factorized
-controller instead uses task/output queries and shared source keys:
-
-```text
-score[t,i,j] = <query[t,i], key[j]> / sqrt(rank)
-```
-
-Its parameter count is:
-
-```text
-M * rank * (T + 1)
-```
-
-instead of `T * M^2`.
-
-```bash
-python experiments/factorized_controller_sweep.py \
-  --ranks 1,2,3,4 \
-  --steps 350 \
-  --seeds 0,1,2 \
-  --modules 6 \
-  --tasks 4
-```
-
-The primary success criterion is hard whole-task permutation accuracy after
-assignment projection, not soft Sinkhorn reconstruction loss.
-
-The CI sweep found no loss even at rank 1:
-
-| rank | params | hard task exact |
-| ---: | ---: | ---: |
-| 1 | 30 | 100% |
-| 2 | 60 | 100% |
-| 3 | 90 | 100% |
-| 4 | 120 | 100% |
-| full v0.8 | 144 | 100% |
-
-All three seeds were exact at every rank.  The next bottleneck is therefore not
-controller rank but the explicit task-ID lookup itself.
-
-See [`docs/V0_9_REPORT.md`](docs/V0_9_REPORT.md).
-
-## v0.10 content-conditioned routing
-
-v0.10 removes the task-ID permutation table entirely.
-
-Each sample contains fresh random source-module addresses.  Target routing
-context contains the same latent addresses in a different observation basis and
-a fresh random order.  A shared controller projects both views into a common
-embedding space, produces pairwise matching scores, trains through Sinkhorn, and
-hard-projects to a Monomial permutation for exact execution.
-
-```bash
-python experiments/context_route_generalization.py \
-  --steps 500 \
-  --seeds 0,1,2 \
-  --modules 6 \
-  --context-dim 6 \
-  --rank 6
-```
-
-Every training and evaluation sample uses a newly generated permutation, so
-successful hard routing cannot come from memorizing a fixed task table.
-
-See [`docs/V0_10_REPORT.md`](docs/V0_10_REPORT.md).
-
-## Deliberate limitations
-
-FlowCore does **not** claim that a dynamic substrate automatically yields
-AGI, emergent brain regions, or compute savings.  In particular:
-
-1. exact affine scan requires a structured operator family;
-2. block-local scan does not yet implement arbitrary dynamic cross-block edges;
-3. top-k input ports are sparse semantically, but custom sparse execution kernels
-   are future work;
-4. a parallel scan can do more total arithmetic than a serial recurrence, so
-   speedups are hardware- and shape-dependent;
-5. state-conditioned routing is handled by a small number of global refinement
-   passes rather than a fully recursive controller.
-
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the design and
-[`docs/ROADMAP.md`](docs/ROADMAP.md) for the experimental path.
-
-## Tests
-
-```bash
-pytest
-```
-
-The test suite verifies both state outputs and gradients of the parallel scan
-against the sequential recurrence.
-
-## License
-
-MIT
+For **exact CI command flags** (including batch sizes, evaluation settings and
+output paths), see [`docs/RESULTS.md`](docs/RESULTS.md) and
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+
+## Scope and next research questions
+
+The mathematical kernel and toy experiments are functional. However:
+
+- Monomial routing is not yet integrated as a drop-in `FlowCoreModel` backend.
+- Exact hard assignment uses a small-M exponential-time reference solver;
+  learned matching still constructs an O(M²) score matrix.
+- Continuous Hold interpolation is not generally closed in the monomial family.
+- Synthetic address matching with fixed view transforms does not establish
+  unseen-view or real-world generalization.
+- Short T=16 CPU measurements in v0.5 favored **sequential** execution. Actual
+  GPU end-to-end speedups and true sparse kernels remain unverified.
+
+Next priorities: unseen observation transforms, module-count/noise scaling,
+efficient permutation selection, Hold-compatible composable operators,
+and high-dimensional sequence benchmarks.
+
+**Documentation:** [Architecture](docs/ARCHITECTURE.md) ·
+[Roadmap](docs/ROADMAP.md) ·
+[Experiments and provenance](docs/RESULTS.md) ·
+[v0.10 report](docs/V0_10_REPORT.md) ·
+[MIT License](LICENSE)

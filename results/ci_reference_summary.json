@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "description": "Curated CI reference results for README visualizations; benchmark settings differ across versions.",
+  "provenance": {
+    "v05": {
+      "run": "https://github.com/ZJY-HSBL/Flowcore/actions/runs/37742036277",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "modules": 4,
+      "local_dim": 1,
+      "train_time": 4,
+      "long_time": 16,
+      "steps": 120
+    },
+    "v06": {
+      "run": "https://github.com/ZJY-HSBL/Flowcore/actions/runs/37797719671",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "modules": 6,
+      "local_dim": 2,
+      "tasks": 4,
+      "long_time": 16,
+      "steps": 100
+    },
+    "v07": {
+      "run": "https://github.com/ZJY-HSBL/Flowcore/actions/runs/37798579002",
+      "modules": 6,
+      "local_dim": 3,
+      "tasks": 4,
+      "batch": 256,
+      "time": 16,
+      "oracle": true
+    },
+    "v08": {
+      "run": "https://github.com/ZJY-HSBL/Flowcore/actions/runs/37799900510",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "modules": 6,
+      "local_dim": 3,
+      "tasks": 4,
+      "steps": 250
+    },
+    "v09": {
+      "run": "https://github.com/ZJY-HSBL/Flowcore/actions/runs/37800868426",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "modules": 6,
+      "tasks": 4,
+      "steps": 300
+    },
+    "v10": {
+      "run": "https://github.com/ZJY-HSBL/Flowcore/actions/runs/37801859799",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "modules": 6,
+      "local_dim": 3,
+      "context_dim": 6,
+      "rank": 6,
+      "steps": 450,
+      "eval_batch": 512,
+      "noise": 0.03,
+      "extra_noise": 0.06
+    }
+  },
+  "v05": {
+    "backend": [
+      {
+        "name": "Block",
+        "delivery_pct": 0,
+        "mse": 0.97018,
+        "parallel_ms": 0.34,
+        "seq_over_parallel": 0.608
+      },
+      {
+        "name": "Spectral-Kronecker",
+        "delivery_pct": 12.56,
+        "mse": 0.5569,
+        "parallel_ms": 0.71,
+        "seq_over_parallel": 0.836
+      },
+      {
+        "name": "Circulant-Kronecker",
+        "delivery_pct": 99.88,
+        "mse": 0.0032,
+        "parallel_ms": 0.609,
+        "seq_over_parallel": 0.749
+      }
+    ]
+  },
+  "v06": {
+    "family": [
+      {
+        "name": "Block",
+        "cyclic_slot_accuracy_pct": 16.62,
+        "arbitrary_slot_accuracy_pct": 23.18
+      },
+      {
+        "name": "Spectral-Kronecker",
+        "cyclic_slot_accuracy_pct": 16.6,
+        "arbitrary_slot_accuracy_pct": 18.45
+      },
+      {
+        "name": "Circulant-Kronecker",
+        "cyclic_slot_accuracy_pct": 99.09,
+        "arbitrary_slot_accuracy_pct": 27.47,
+        "arbitrary_projection_error": 0.81384
+      }
+    ]
+  },
+  "v07": {
+    "oracle_hard_mse": 0,
+    "oracle_slot_accuracy_pct": 100,
+    "parallel_error": 0
+  },
+  "v08": {
+    "full_controller_params": 144,
+    "hard_mse": 0,
+    "task_exact_accuracy_pct": 100
+  },
+  "v09": {
+    "baseline_full_params": 144,
+    "ranks": [
+      {
+        "rank": 1,
+        "params": 30,
+        "task_exact_accuracy_pct": 100
+      },
+      {
+        "rank": 2,
+        "params": 60,
+        "task_exact_accuracy_pct": 100
+      },
+      {
+        "rank": 3,
+        "params": 90,
+        "task_exact_accuracy_pct": 100
+      },
+      {
+        "rank": 4,
+        "params": 120,
+        "task_exact_accuracy_pct": 100
+      }
+    ]
+  },
+  "v10": {
+    "controller_params": 72,
+    "soft_mse_by_seed": [
+      0.001702,
+      0.002464,
+      0.001807
+    ],
+    "soft_mse_mean": 0.001991020826001962,
+    "hard_mse_mean": 0,
+    "unseen_slot_accuracy_pct": 100,
+    "whole_permutation_accuracy_pct": 100,
+    "double_noise_slot_accuracy_pct": 100,
+    "parallel_seq_max_error": 0,
+    "passing_tests": 39,
+    "ci_python": [
+      "3.10",
+      "3.11",
+      "3.12"
+    ]
+  }
+}

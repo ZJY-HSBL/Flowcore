@@ -114,3 +114,27 @@ It would still not establish:
 - generalization to a different source/target observation transformation.
 
 Those remain separate experiments.
+
+## 7. Verified CI result (October 8, 2026)
+
+The [completed v0.10 reference CI run](https://github.com/ZJY-HSBL/Flowcore/actions/runs/37801859799)
+passed all jobs (Python 3.10, 3.11 and 3.12, 39 tests).
+
+Reference setting: seeds 0/1/2; 450 training steps per seed; 6 modules; payload
+dimension 3; descriptor dimension and embedding rank 6; 512 evaluation samples
+per seed; context noise 0.03, doubled-noise evaluation 0.06.
+
+| Metric | Seed 0 | Seed 1 | Seed 2 | Mean |
+| --- | ---: | ---: | ---: | ---: |
+| Soft reconstruction MSE | 0.001702 | 0.002464 | 0.001807 | **0.001991** |
+| Hard Monomial MSE | 0 | 0 | 0 | **0** |
+| Unseen slot accuracy | 100% | 100% | 100% | **100%** |
+| Whole-permutation exact | 100% | 100% | 100% | **100%** |
+| 2x noise slot accuracy | 100% | 100% | 100% | **100%** |
+| Parallel/serial error | 0 | 0 | 0 | **0** |
+
+The controller contains 72 parameters. The result establishes exact learned
+content matching *within the fixed pair of observation views* under these
+conditions; it does not establish transfer to new observation transformations.
+
+See the README visual summary and the full [results protocol](RESULTS.md).
