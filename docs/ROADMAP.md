@@ -109,3 +109,13 @@ Validation added in v0.5:
 - world model
 - planner/action loop
 - offline consolidation / sleep-like reorganization
+
+## Phase 3B — out-of-distribution routing checks (v0.11)
+
+- Evaluate the v0.10 trained controller on unseen source/target observation bases.
+- Add a zero-parameter geometric distance-fingerprint matching baseline, which is
+  invariant to orthogonal view changes but assumes the same underlying point
+  set on both sides.
+- Scan noise and report *both* slot and whole-permutation accuracy.
+- Keep natural semantics, larger module counts, and efficient assignment as
+  separate open problems.

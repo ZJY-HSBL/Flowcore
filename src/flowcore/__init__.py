@@ -31,6 +31,11 @@ from .evaluation import (
     transport_metrics,
 )
 from .injection import MultiPortInjector, PortSelector
+from .invariant_router import (
+    InvariantPermutationController,
+    distance_fingerprints,
+    invariant_matching_scores,
+)
 from .kronecker import (
     apply_spectral_kronecker_affine,
     compose_spectral_kronecker_affine,
@@ -87,6 +92,9 @@ __all__ = [
     "MatchingPermutationController",
     "MultiPortInjector",
     "PortSelector",
+    "InvariantPermutationController",
+    "distance_fingerprints",
+    "invariant_matching_scores",
     "PolicyAnchorBuffer",
     "StateDiagnostics",
     "TransportBatch",
@@ -140,4 +148,4 @@ __all__ = [
     "sequential_monomial_scan",
 ]
 
-__version__ = "0.10.0"
+__version__ = "0.11.0"

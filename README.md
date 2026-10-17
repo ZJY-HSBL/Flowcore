@@ -14,7 +14,7 @@ Route, Hold and multi-port injection provide configurable dynamic behavior.
 
 ![FlowCore pipeline: encoding, injection, control, structured operators, parallel scan and readout](assets/flowcore-pipeline.svg)
 
-> **Research status — v0.10.0.** The figures below are *real recorded CI reference
+> **Research status — v0.11.0.** The figures below are *real recorded CI reference
 > measurements on synthetic tasks*, not fabricated projections. They do not
 > establish AGI capabilities, generic sequence-model superiority, GPU speedups,
 > or effectiveness on natural-language/vision tasks.
@@ -168,6 +168,21 @@ python experiments/context_route_generalization.py --steps 450 --seeds 0,1,2 --m
 For **exact CI command flags** (including batch sizes, evaluation settings and
 output paths), see [`docs/RESULTS.md`](docs/RESULTS.md) and
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+
+## v0.11 — Testing unseen observation views
+
+The next experiment deliberately changes the orthogonal observation views at
+evaluation. It compares the **v0.10 learned fixed-view controller** with a
+**zero-parameter distance-fingerprint matcher** whose features are invariant to
+orthogonal transformations. Noise is swept across 0.03, 0.06, 0.12 and 0.20.
+The invariant route is an analytical baseline, not learned semantic reasoning.
+
+```bash
+python experiments/unseen_view_stress.py --steps 400 --seeds 0,1,2
+```
+
+See [the v0.11 protocol](docs/V0_11_REPORT.md) for the precise distinction
+between trained and unseen views.
 
 ## Scope and next research questions
 

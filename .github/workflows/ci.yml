@@ -39,6 +39,26 @@ jobs:
             --noise-multiplier 2 \
             --device cpu \
             --output results/v10_ci_reference.json
+      - name: v0.11 unseen-view routing stress
+        if: matrix.python-version == '3.11'
+        run: |
+          python experiments/unseen_view_stress.py \
+            --steps 400 \
+            --seeds 0,1,2 \
+            --noises 0.03,0.06,0.12,0.20 \
+            --batch 128 \
+            --eval-batch 256 \
+            --modules 6 \
+            --context-dim 6 \
+            --rank 6 \
+            --device cpu \
+            --output results/v11_ci_reference.json
+      - name: Upload v0.11 routing result
+        if: matrix.python-version == '3.11'
+        uses: actions/upload-artifact@v4
+        with:
+          name: v11-ci-reference
+          path: results/v11_ci_reference.json
       - name: Upload v0.10 routing result
         if: matrix.python-version == '3.11'
         uses: actions/upload-artifact@v4
