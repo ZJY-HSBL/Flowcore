@@ -15,6 +15,7 @@ FIGURES = [
     "assets/v09-controller.svg",
     "assets/v10-generalization.svg",
     "assets/v11-unseen-views.svg",
+    "assets/v12-structural-metric.svg",
 ]
 
 
@@ -62,3 +63,13 @@ def test_reference_dataset_has_consistent_provenance_and_values():
     assert v11["invariant_distance"]["unseen_slot_accuracy_pct"][0] == 100
     assert v11["invariant_distance"]["unseen_slot_accuracy_pct"][-1] == 81.68
     assert v11["invariant_distance"]["trainable_parameters"] == 0
+
+    v12 = data["v12"]
+    assert v12["trained_metric_parameters"] == 8
+    assert v12["baseline_metric_parameters"] == 0
+    six = v12["module_count"]["6"]
+    eight = v12["module_count"]["8"]
+    assert six["learned_quantile"]["slot_accuracy_pct"][2] == 74.22
+    assert six["uniform_quantile"]["slot_accuracy_pct"][2] == 77.86
+    assert eight["learned_quantile"]["slot_accuracy_pct"][2] == 69.27
+    assert eight["uniform_quantile"]["slot_accuracy_pct"][2] == 76.63

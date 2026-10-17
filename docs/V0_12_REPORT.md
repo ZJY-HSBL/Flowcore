@@ -79,3 +79,34 @@ python experiments/structural_metric_stress.py \
 ```
 
 Only completed CI measurements should be appended to this report.
+
+## CI reference results — October 17, 2026
+
+[Completed CI run 39017452897](https://github.com/ZJY-HSBL/Flowcore/actions/runs/39017452897)
+passed **48 tests** on Python 3.10, 3.11 and 3.12.
+
+Three-seed hard slot accuracy (%) across independently changing source/target
+observation views:
+
+| M | Noise | Learned, 8 params | Uniform-quantile, 0 params | Full-distance, 0 params |
+| ---: | ---: | ---: | ---: | ---: |
+| 6 | 0.03 | 100.00 | 100.00 | 100.00 |
+| 6 | 0.12 | 93.23 | 94.53 | 94.27 |
+| 6 | 0.20 | 74.22 | 77.86 | 77.95 |
+| 6 | 0.30 | 59.46 | 60.94 | 61.63 |
+| 8 | 0.03 | 100.00 | 100.00 | 100.00 |
+| 8 | 0.12 | 91.15 | 94.79 | 94.79 |
+| 8 | 0.20 | 69.27 | 76.63 | 76.63 |
+| 8 | 0.30 | 53.84 | 54.36 | 54.36 |
+
+At M=8/noise=0.20, hard full-permutation exact accuracy was 32.81% for
+learned weights versus 44.27% for both zero-parameter controls.
+
+The low-noise cross-view and module-count generalization is encouraging, but
+the **learning intervention has a negative effect on higher-noise accuracy**
+under the evaluated training objective. The next experiment should vary the
+learning objective (e.g. hard-assignment-aware or margin-robust training)
+instead of merely increasing controller parameters. Baselines must continue
+to be reported and must use identical evaluation batches.
+
+The full JSON from CI is available as artifact `v12-ci-reference`.

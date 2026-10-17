@@ -158,3 +158,49 @@ python experiments/unseen_view_stress.py \
 ```
 
 CI passed **44 tests** across Python 3.10, 3.11 and 3.12.
+
+## v0.12 — Learned distance-quantile metric vs geometric controls
+
+Source: [Actions run 39017452897](https://github.com/ZJY-HSBL/Flowcore/actions/runs/39017452897).
+Raw per-seed result artifact: `v12-ci-reference` (JSON). The checked-in
+`results/ci_reference_summary.json` stores the four-decimal console
+aggregates plus exact provenance.
+
+CPU, 3 seeds, 350 updates/seed, batch=64, eval-batch=64, training module count
+6, evaluation module counts 6 and 8, descriptor width=6, payload width=3,
+training noise sampled uniformly in [0.03, 0.25], test noise 0.03/0.12/0.20/0.30.
+
+Training and evaluation use new per-sample orthogonal views, independent
+translations and scales, new latent Gaussian points and new random
+permutations. The learned metric has 8 weights; both analytical baselines have
+zero trainable parameters.
+
+**Mean hard slot accuracy (percent):**
+
+| Modules | Noise | Learned metric | Uniform quantile | Full-distance |
+| ---: | ---: | ---: | ---: | ---: |
+| 6 | 0.03 | 100.00 | 100.00 | 100.00 |
+| 6 | 0.12 | 93.23 | 94.53 | 94.27 |
+| 6 | 0.20 | 74.22 | 77.86 | 77.95 |
+| 6 | 0.30 | 59.46 | 60.94 | 61.63 |
+| 8 | 0.03 | 100.00 | 100.00 | 100.00 |
+| 8 | 0.12 | 91.15 | 94.79 | 94.79 |
+| 8 | 0.20 | 69.27 | 76.63 | 76.63 |
+| 8 | 0.30 | 53.84 | 54.36 | 54.36 |
+
+For M=8, noise=0.20, whole-permutation accuracy is **32.81% learned**
+versus **44.27%** for both analytical baselines.
+
+This negative result isolates a weakness of the trained diagonal fingerprint
+metric under the chosen Sinkhorn reconstruction objective. Do not interpret
+it as proof that no learnable geometric controller can be more robust. The
+representation's invariance was engineered rather than learned.
+
+```bash
+python experiments/structural_metric_stress.py \
+  --steps 350 --seeds 0,1,2 --batch 64 --eval-batch 64 \
+  --train-modules 6 --eval-modules 6,8 \
+  --eval-noises 0.03,0.12,0.20,0.30 --device cpu
+```
+
+CI passed **48 tests** on Python 3.10, 3.11 and 3.12.

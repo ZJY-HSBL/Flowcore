@@ -197,25 +197,37 @@ python experiments/unseen_view_stress.py --steps 400 --seeds 0,1,2
 
 See [v0.11 report](docs/V0_11_REPORT.md) and [measurement protocol](docs/RESULTS.md).
 
-## v0.12 — Learning a view-invariant structural metric
+## v0.12 — Learned geometric metric: a useful negative result
 
-This experiment no longer trains on one fixed pair of observation views:
-**source and target rotations, translations and scales are independently
-resampled for every batch**. A minimal controller learns eight positive weights
-over sorted distance-quantile descriptors using payload reconstruction loss.
+![v0.12 learned structural metric against two zero-parameter baselines at six and eight modules](assets/v12-structural-metric.svg)
 
-The matched baselines are a *zero-parameter uniform quantile metric* (same
-features) and the *zero-parameter full-distance fingerprint* method from v0.11.
-Training uses six modules; evaluation includes both six modules and **unseen
-eight-module point sets**, with four noise levels. No task-ID table or fixed
-permutation bank is involved.
+| Module count | Noise | Learned (8 params) | Uniform (0 params) | Full-distance (0 params) |
+| ---: | ---: | ---: | ---: | ---: |
+| 6 (trained size) | 0.03 | **100.00%** | **100.00%** | **100.00%** |
+| 6 | 0.12 | 93.23% | **94.53%** | 94.27% |
+| 6 | 0.20 | 74.22% | 77.86% | **77.95%** |
+| 6 | 0.30 | 59.46% | 60.94% | **61.63%** |
+| 8 (**held-out size**) | 0.03 | **100.00%** | **100.00%** | **100.00%** |
+| 8 | 0.12 | 91.15% | **94.79%** | **94.79%** |
+| 8 | 0.20 | 69.27% | **76.63%** | **76.63%** |
+| 8 | 0.30 | 53.84% | **54.36%** | **54.36%** |
+
+**Finding:** A structurally invariant representation supports new independent
+orthogonal views and an unseen module count, but learning eight metric weights
+from soft payload-reconstruction loss **reduced high-noise accuracy** in this
+experiment. The metric did **not** outperform the two zero-parameter baselines.
+The comparison is stronger than only reporting low-noise 100% accuracy.
+
+Three seeds, 350 updates per seed, fresh independently transformed descriptors
+in each batch, train modules=6, eval modules=6/8. [v0.12 CI results and raw
+JSON artifact](https://github.com/ZJY-HSBL/Flowcore/actions/runs/39017452897).
+**48 tests passed** on Python 3.10/3.11/3.12.
 
 ```bash
 python experiments/structural_metric_stress.py --steps 350 --seeds 0,1,2
 ```
 
-Verified results will be posted here after CI; this section makes no
-unmeasured performance claims. See [the v0.12 protocol](docs/V0_12_REPORT.md).
+See [v0.12 report](docs/V0_12_REPORT.md) and [full result provenance](docs/RESULTS.md).
 
 ## Scope and next research questions
 
