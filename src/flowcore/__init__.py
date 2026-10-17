@@ -36,6 +36,10 @@ from .invariant_router import (
     distance_fingerprints,
     invariant_matching_scores,
 )
+from .structural_controller import (
+    QuantileInvariantPermutationController,
+    quantile_distance_fingerprints,
+)
 from .kronecker import (
     apply_spectral_kronecker_affine,
     compose_spectral_kronecker_affine,
@@ -93,6 +97,8 @@ __all__ = [
     "MultiPortInjector",
     "PortSelector",
     "InvariantPermutationController",
+    "QuantileInvariantPermutationController",
+    "quantile_distance_fingerprints",
     "distance_fingerprints",
     "invariant_matching_scores",
     "PolicyAnchorBuffer",
@@ -148,4 +154,4 @@ __all__ = [
     "sequential_monomial_scan",
 ]
 
-__version__ = "0.11.0"
+__version__ = "0.12.0"

@@ -53,6 +53,25 @@ jobs:
             --rank 6 \
             --device cpu \
             --output results/v11_ci_reference.json
+      - name: v0.12 invariant metric stress
+        if: matrix.python-version == '3.11'
+        run: |
+          python experiments/structural_metric_stress.py \
+            --steps 350 \
+            --seeds 0,1,2 \
+            --batch 64 \
+            --eval-batch 64 \
+            --train-modules 6 \
+            --eval-modules 6,8 \
+            --eval-noises 0.03,0.12,0.20,0.30 \
+            --device cpu \
+            --output results/v12_ci_reference.json
+      - name: Upload v0.12 structural metric result
+        if: matrix.python-version == '3.11'
+        uses: actions/upload-artifact@v4
+        with:
+          name: v12-ci-reference
+          path: results/v12_ci_reference.json
       - name: Upload v0.11 routing result
         if: matrix.python-version == '3.11'
         uses: actions/upload-artifact@v4

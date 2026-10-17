@@ -119,3 +119,14 @@ Validation added in v0.5:
 - Scan noise and report *both* slot and whole-permutation accuracy.
 - Keep natural semantics, larger module counts, and efficient assignment as
   separate open problems.
+
+## Phase 3C — learned geometric metric (v0.12)
+
+- Feature: sorted within-set pairwise distance quantiles, independent of the
+  source/target orthogonal observation bases and fixed-length across M.
+- Compare an eight-parameter learned positive metric against uniform-weight
+  quantile and original full-distance analytical baselines.
+- Train using random fresh views and *only* payload reconstruction loss.
+- Probe unseen module count 8 after training on count 6, plus noise levels
+  0.03, 0.12, 0.20, 0.30.
+- Publish per-seed CI data and clearly document regression, if any.

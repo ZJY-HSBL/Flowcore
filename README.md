@@ -14,7 +14,7 @@ Route, Hold and multi-port injection provide configurable dynamic behavior.
 
 ![FlowCore pipeline: encoding, injection, control, structured operators, parallel scan and readout](assets/flowcore-pipeline.svg)
 
-> **Research status — v0.11.0.** The figures below are *real recorded CI reference
+> **Research status — v0.12.0.** The figures below are *real recorded CI reference
 > measurements on synthetic tasks*, not fabricated projections. They do not
 > establish AGI capabilities, generic sequence-model superiority, GPU speedups,
 > or effectiveness on natural-language/vision tasks.
@@ -197,6 +197,26 @@ python experiments/unseen_view_stress.py --steps 400 --seeds 0,1,2
 
 See [v0.11 report](docs/V0_11_REPORT.md) and [measurement protocol](docs/RESULTS.md).
 
+## v0.12 — Learning a view-invariant structural metric
+
+This experiment no longer trains on one fixed pair of observation views:
+**source and target rotations, translations and scales are independently
+resampled for every batch**. A minimal controller learns eight positive weights
+over sorted distance-quantile descriptors using payload reconstruction loss.
+
+The matched baselines are a *zero-parameter uniform quantile metric* (same
+features) and the *zero-parameter full-distance fingerprint* method from v0.11.
+Training uses six modules; evaluation includes both six modules and **unseen
+eight-module point sets**, with four noise levels. No task-ID table or fixed
+permutation bank is involved.
+
+```bash
+python experiments/structural_metric_stress.py --steps 350 --seeds 0,1,2
+```
+
+Verified results will be posted here after CI; this section makes no
+unmeasured performance claims. See [the v0.12 protocol](docs/V0_12_REPORT.md).
+
 ## Scope and next research questions
 
 The mathematical kernel and toy experiments are functional. However:
@@ -205,12 +225,12 @@ The mathematical kernel and toy experiments are functional. However:
 - Exact hard assignment uses a small-M exponential-time reference solver;
   learned matching still constructs an O(M²) score matrix.
 - Continuous Hold interpolation is not generally closed in the monomial family.
-- Synthetic address matching with fixed view transforms does not establish
-  unseen-view or real-world generalization.
+- Synthetic geometric matching, even when observation views change, does not
+  establish real-world semantic generalization.
 - Short T=16 CPU measurements in v0.5 favored **sequential** execution. Actual
   GPU end-to-end speedups and true sparse kernels remain unverified.
 
-Next priorities: unseen observation transforms, module-count/noise scaling,
+Next priorities: nonlinear observation transforms, wider module-count/noise scaling,
 efficient permutation selection, Hold-compatible composable operators,
 and high-dimensional sequence benchmarks.
 
