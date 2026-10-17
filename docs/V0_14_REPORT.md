@@ -83,3 +83,37 @@ Primary metrics: hard slot accuracy, full-permutation exact accuracy,
 hard payload MSE, plus per-seed standard deviation. The zero-param
 baselines are mandatory comparators. Result tables will be updated after
 a confirmed CI reference run.
+
+## Confirmed reference results (October 17, 2026)
+
+[CI run 39021209273](https://github.com/ZJY-HSBL/Flowcore/actions/runs/39021209273)
+passed all three Python jobs (3.10, 3.11, 3.12) and 56 tests.
+
+**Three-seed mean slot accuracy (%):**
+
+| Modules | Noise | Reconstruction | Local margin | Global margin | Global hybrid | Uniform (0p) | Full distance (0p) |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 6 | 0.03 | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% |
+| 6 | 0.12 | 93.23% | 94.18% | 94.18% | 93.40% | 94.53% | 94.27% |
+| 6 | 0.20 | 74.22% | 77.08% | 77.43% | 74.91% | 77.86% | 77.95% |
+| 6 | 0.30 | 59.46% | 60.42% | 60.85% | 60.07% | 60.94% | 61.63% |
+| 8 | 0.03 | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% |
+| 8 | 0.12 | 91.15% | 95.18% | 94.66% | 92.71% | 94.79% | 94.79% |
+| 8 | 0.20 | 69.27% | 74.48% | 74.41% | 68.95% | 76.63% | 76.63% |
+| 8 | 0.30 | 53.84% | 53.26% | 52.86% | 53.26% | 54.36% | 54.36% |
+
+At M=6/noise 0.20, global margin 77.43% narrowly exceeds local margin
+77.08% but trails both zero-parameter baselines (77.86%, 77.95%).
+
+At unseen M=8/noise 0.20, global margin is 74.41%, local margin is
+74.48%, uniform/full-distance is 76.63%. Corresponding whole-permutation
+accuracy is 39.06%, 37.50%, and 44.27%, respectively.
+
+There is **no evidence of robust superiority** from making the matching
+margin globally structured. Improvements in isolated conditions are small,
+while exact competitor search adds factorial training work. Under this
+particular representation, noise-corrupted geometric descriptors and their
+ambiguity appear a more productive research target than further making
+the assignment loss more elaborate.
+
+Full per-seed reference data are in the `v14-ci-reference` workflow artifact.

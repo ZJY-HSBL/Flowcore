@@ -270,37 +270,64 @@ No extra dataset is used, but this is **more direct assignment supervision**.
 python experiments/route_loss_comparison.py --steps 350 --seeds 0,1,2
 ```
 
-See [v0.13 report](docs/V0_13_REPORT.md) and
+See [v0.14 report](docs/V0_14_REPORT.md) and
 [measurement provenance](docs/RESULTS.md).
 
-## v0.14 — Whole-permutation structured margin
+## v0.14 — Global structured assignment loss
 
-The previous local hinge compared target/source rows and columns separately.
-v0.14 adds a **global structured margin** by comparing the correct full
-one-to-one assignment with the highest-scoring *incorrect* permutation:
+![FlowCore v0.14 global vs local permutation margin under noise](assets/v14-global-margin.svg)
 
-```text
-global_loss = relu(margin + avg_score(best_wrong_permutation)
-                            - avg_score(correct_permutation))
-```
+v0.14 compares **whole-permutation margin** against the local margin from
+v0.13, using the same **eight-parameter invariant metric**, learning data,
+random seeds, optimization budget and evaluation batches. The global loss
+scores every complete permutation and enforces a margin against the strongest
+incorrect full assignment.
 
-In this small-M research test, the competing assignment is computed by
-exhaustively enumerating permutations during training (M=6 → 720
-candidates). This is *not scalable* as-is and does not alter the exact
-Monomial inference scan.
+| Modules | Noise | Reconstruction | Local margin | Global margin | Global hybrid | Uniform (0p) | Full distance (0p) |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 6 | 0.03 | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% |
+| 6 | 0.12 | 93.23% | 94.18% | 94.18% | 93.40% | 94.53% | 94.27% |
+| 6 | 0.20 | 74.22% | 77.08% | 77.43% | 74.91% | 77.86% | 77.95% |
+| 6 | 0.30 | 59.46% | 60.42% | 60.85% | 60.07% | 60.94% | 61.63% |
+| 8 | 0.03 | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% |
+| 8 | 0.12 | 91.15% | 95.18% | 94.66% | 92.71% | 94.79% | 94.79% |
+| 8 | 0.20 | 69.27% | 74.48% | 74.41% | 68.95% | 76.63% | 76.63% |
+| 8 | 0.30 | 53.84% | 53.26% | 52.86% | 53.26% | 54.36% | 54.36% |
 
-Five matched eight-parameter learning objectives (reconstruction, local
-margin, local hybrid, global margin, global hybrid) and both zero-parameter
-geometric baselines are compared on identical synthetic data and fresh
-orthogonal observation views. The margin objectives derive matching labels
-from existing payload pairs—stronger explicit supervision than reconstruction.
+*Mean hard slot accuracy over three seeds; all objectives share an eight-weight
+metric. The two geometric baselines have zero trainable parameters.*
+
+**Main result:** The global objective does **not** reliably surpass local
+margin or the analytic baselines. At trained M=6/noise 0.20, global
+margin achieves 77.43% versus local 77.08% and the best zero-parameter
+baseline 77.95%. At unseen M=8/noise 0.20, global reaches **74.41%**,
+local **74.48%**, and zero-parameter **76.63%**.
+
+Whole-permutation accuracy at M=8/noise 0.20 is 39.06% global, 37.50%
+local, 44.27% baseline. This distinction illustrates why both whole-match
+and slot-level metrics are reported.
+
+The local hybrid results are also included in the [complete JSON data](
+results/ci_reference_summary.json), although excluded from the shortened
+table for readability.
+
+**Limitations:** Enumerating the 720 possible six-module permutations during
+training gives an exact small-M global competitor but costs factorial work.
+The margin extracts explicit correspondences from the same provided
+source/target payload pairs; it is a stronger supervision signal than
+reconstruction-only training. This is **not** a scalable GPU implementation or
+semantic matching result.
+
+[Verified GitHub Actions run / complete per-seed JSON artifact](
+https://github.com/ZJY-HSBL/Flowcore/actions/runs/39021209273).
+**56 tests passed** on Python 3.10, 3.11 and 3.12.
 
 ```bash
 python experiments/global_assignment_stress.py --steps 350 --seeds 0,1,2
 ```
 
-Measured results and figures will be added only after CI completes.
-See [the v0.14 protocol](docs/V0_14_REPORT.md).
+See [v0.14 report](docs/V0_14_REPORT.md) and
+[all result provenance](docs/RESULTS.md).
 
 ## Scope and next research questions
 

@@ -246,3 +246,46 @@ python experiments/route_loss_comparison.py \
 ```
 
 52 tests passed on Python 3.10/3.11/3.12.
+
+## v0.14 — Whole-assignment structured margin
+
+Source: [completed CI run 39021209273](https://github.com/ZJY-HSBL/Flowcore/actions/runs/39021209273).
+The `v14-ci-reference` artifact contains per-seed JSON. Rounded three-seed
+means are recorded in `results/ci_reference_summary.json`.
+
+Training is identical to v0.13: three seeds, M=6, 350 steps per seed,
+batch/eval-batch 64, eight learned metric weights, independent per-sample
+observation rotations, translations/scales, training noise sampled in
+[0.03,0.25], eval M=6/M=8 at noise 0.03/0.12/0.20/0.30.
+
+**Mean hard slot accuracy:**
+
+| Modules | Noise | Reconstruction | Local margin | Global margin | Global hybrid | Uniform (0p) | Full distance (0p) |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 6 | 0.03 | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% |
+| 6 | 0.12 | 93.23% | 94.18% | 94.18% | 93.40% | 94.53% | 94.27% |
+| 6 | 0.20 | 74.22% | 77.08% | 77.43% | 74.91% | 77.86% | 77.95% |
+| 6 | 0.30 | 59.46% | 60.42% | 60.85% | 60.07% | 60.94% | 61.63% |
+| 8 | 0.03 | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% |
+| 8 | 0.12 | 91.15% | 95.18% | 94.66% | 92.71% | 94.79% | 94.79% |
+| 8 | 0.20 | 69.27% | 74.48% | 74.41% | 68.95% | 76.63% | 76.63% |
+| 8 | 0.30 | 53.84% | 53.26% | 52.86% | 53.26% | 54.36% | 54.36% |
+
+At M=8 noise 0.20, whole-permutation exact accuracy is 39.06% for global
+margin, 37.50% local margin and 44.27% uniform/full-distance baselines.
+A higher full-permutation metric does not imply higher slot accuracy.
+
+Global competitor selection exhaustively searches all 720 permutations of
+M=6 modules on each training batch; it has O(B M! M) complexity. The hard
+routing execution remains exact Monomial matching but not a demonstrated GPU
+speedup. Explicit correspondence indices are reconstructed from the existing
+payload pairs, which strengthens training supervision.
+
+```bash
+python experiments/global_assignment_stress.py \
+ --steps 350 --seeds 0,1,2 --batch 64 --eval-batch 64 \
+ --train-modules 6 --eval-modules 6,8 \
+ --eval-noises 0.03,0.12,0.20,0.30 --device cpu
+```
+
+CI: 56 tests passed on Python 3.10/3.11/3.12.
