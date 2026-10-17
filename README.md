@@ -169,20 +169,33 @@ For **exact CI command flags** (including batch sizes, evaluation settings and
 output paths), see [`docs/RESULTS.md`](docs/RESULTS.md) and
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
-## v0.11 — Testing unseen observation views
+## v0.11 — The unseen-view generalization boundary
 
-The next experiment deliberately changes the orthogonal observation views at
-evaluation. It compares the **v0.10 learned fixed-view controller** with a
-**zero-parameter distance-fingerprint matcher** whose features are invariant to
-orthogonal transformations. Noise is swept across 0.03, 0.06, 0.12 and 0.20.
-The invariant route is an analytical baseline, not learned semantic reasoning.
+![v0.11 routing slot accuracy: fixed-view learner and geometric invariant matcher as observation noise rises](assets/v11-unseen-views.svg)
+
+| Noise | Learned, trained views | Learned, **new views** | Invariant matcher, **new views** |
+| ---: | ---: | ---: | ---: |
+| 0.03 | 100.00% | 23.20% | **100.00%** |
+| 0.06 | 100.00% | 22.31% | **99.74%** |
+| 0.12 | 100.00% | 21.85% | **95.20%** |
+| 0.20 | 99.91% | 20.51% | **81.68%** |
+
+In a different, previously unseen orthogonal observation-view pair, the
+v0.10 learned controller drops sharply. The zero-parameter baseline uses
+**sorted within-set distance fingerprints**, which are invariant to shared
+orthogonal transforms; it remains accurate at low noise but degrades as noise
+rises. This baseline relies on having two observations of the *same complete
+point set* and is **not a learned general-purpose semantic router**.
+
+Three seeds, 6 modules, 400 training steps, synthetic Gaussian addresses;
+[v0.11 CI and raw artifact](https://github.com/ZJY-HSBL/Flowcore/actions/runs/39002837720).
+**44 tests passed** across Python 3.10/3.11/3.12.
 
 ```bash
 python experiments/unseen_view_stress.py --steps 400 --seeds 0,1,2
 ```
 
-See [the v0.11 protocol](docs/V0_11_REPORT.md) for the precise distinction
-between trained and unseen views.
+See [v0.11 report](docs/V0_11_REPORT.md) and [measurement protocol](docs/RESULTS.md).
 
 ## Scope and next research questions
 

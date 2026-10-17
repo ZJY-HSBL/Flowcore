@@ -14,6 +14,7 @@ FIGURES = [
     "assets/v06-stress.svg",
     "assets/v09-controller.svg",
     "assets/v10-generalization.svg",
+    "assets/v11-unseen-views.svg",
 ]
 
 
@@ -55,3 +56,9 @@ def test_reference_dataset_has_consistent_provenance_and_values():
     assert v10["hard_mse_mean"] == 0
     assert v10["whole_permutation_accuracy_pct"] == 100
     assert v10["double_noise_slot_accuracy_pct"] == 100
+
+    v11 = data["v11"]
+    assert v11["learned_fixed_view"]["unseen_slot_accuracy_pct"][0] == 23.20
+    assert v11["invariant_distance"]["unseen_slot_accuracy_pct"][0] == 100
+    assert v11["invariant_distance"]["unseen_slot_accuracy_pct"][-1] == 81.68
+    assert v11["invariant_distance"]["trainable_parameters"] == 0

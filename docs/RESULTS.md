@@ -122,3 +122,39 @@ The README includes charts to make these controlled results interpretable.
 This project has **not** yet demonstrated broad sequence modeling capabilities,
 competitive large-scale efficiency, AGI-level behavior, or a production-ready
 discrete routing kernel.
+
+## v0.11 — Unseen orthogonal observation views
+
+Source: [Actions run 39002837720](https://github.com/ZJY-HSBL/Flowcore/actions/runs/39002837720),
+artifact `v11-ci-reference`.
+
+CPU, seeds 0/1/2, 400 training steps, 6 modules, context dimension 6,
+embedding rank 6, evaluation batch 256, training noise 0.03. The learned
+v0.10 controller is trained only against its fixed source/target observation
+pair. Evaluation compares that same pair against **new orthogonal view matrices**
+for each seed, at noise 0.03 / 0.06 / 0.12 / 0.20.
+
+| Noise | Learned/trained slot | Learned/unseen slot | Invariant/unseen slot | Invariant/unseen whole-permutation exact |
+| ---: | ---: | ---: | ---: | ---: |
+| 0.03 | 100.00% | 23.20% | 100.00% | 100.00% |
+| 0.06 | 100.00% | 22.31% | 99.74% | 99.22% |
+| 0.12 | 100.00% | 21.85% | 95.20% | 88.15% |
+| 0.20 | 99.91% | 20.51% | 81.68% | 57.55% |
+
+The invariant matcher is not trained; it compares sorted distances to all
+other modules and assumes a common latent point set. Pairwise Euclidean
+distances are preserved by orthogonal transforms. The method fails more often
+as measurement noise changes those signatures.
+
+The curves reflect rounded CI console means; the downloadable GitHub Actions
+artifact contains the full per-seed JSON.
+
+```bash
+python experiments/unseen_view_stress.py \
+  --steps 400 --seeds 0,1,2 \
+  --noises 0.03,0.06,0.12,0.20 \
+  --batch 128 --eval-batch 256 \
+  --modules 6 --context-dim 6 --rank 6 --device cpu
+```
+
+CI passed **44 tests** across Python 3.10, 3.11 and 3.12.

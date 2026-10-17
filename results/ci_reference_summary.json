@@ -75,6 +75,29 @@
       "eval_batch": 512,
       "noise": 0.03,
       "extra_noise": 0.06
+    },
+    "v11": {
+      "run": "https://github.com/ZJY-HSBL/Flowcore/actions/runs/39002837720",
+      "artifact": "v11-ci-reference",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "modules": 6,
+      "local_dim": 3,
+      "context_dim": 6,
+      "rank": 6,
+      "steps": 400,
+      "eval_batch": 256,
+      "train_noise": 0.03,
+      "noise_grid": [
+        0.03,
+        0.06,
+        0.12,
+        0.2
+      ],
+      "summary_rounded_from_ci_stdout": true
     }
   },
   "v05": {
@@ -176,5 +199,67 @@
       "3.11",
       "3.12"
     ]
+  },
+  "v11": {
+    "levels": [
+      0.03,
+      0.06,
+      0.12,
+      0.2
+    ],
+    "learned_fixed_view": {
+      "trained_slot_accuracy_pct": [
+        100,
+        100,
+        100,
+        99.91
+      ],
+      "unseen_slot_accuracy_pct": [
+        23.2,
+        22.31,
+        21.85,
+        20.51
+      ],
+      "unseen_exact_permutation_pct": [
+        3.52,
+        1.3,
+        2.08,
+        0.65
+      ],
+      "unseen_hard_payload_mse": [
+        1.56767,
+        1.57278,
+        1.57697,
+        1.58807
+      ]
+    },
+    "invariant_distance": {
+      "trained_slot_accuracy_pct": [
+        100,
+        99.48,
+        94.99,
+        79.62
+      ],
+      "unseen_slot_accuracy_pct": [
+        100,
+        99.74,
+        95.2,
+        81.68
+      ],
+      "unseen_exact_permutation_pct": [
+        100,
+        99.22,
+        88.15,
+        57.55
+      ],
+      "unseen_hard_payload_mse": [
+        0,
+        0.00657,
+        0.0985,
+        0.36034
+      ],
+      "trainable_parameters": 0
+    },
+    "passing_tests": 44
   }
 }

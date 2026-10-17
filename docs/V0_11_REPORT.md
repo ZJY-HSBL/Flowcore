@@ -59,3 +59,32 @@ python experiments/unseen_view_stress.py \
 
 An explicit future task is unseen nonlinear observation transforms and genuine
 semantic routing, where pairwise Euclidean invariance need not apply.
+
+## Verified CI results (October 17, 2026)
+
+[Run 39002837720](https://github.com/ZJY-HSBL/Flowcore/actions/runs/39002837720)
+completed successfully across Python 3.10/3.11/3.12 (44 tests).
+
+Three-seed mean slot accuracy:
+
+| Noise | Fixed-view learner / trained views | Fixed-view learner / unseen views | Invariant matcher / unseen views |
+| ---: | ---: | ---: | ---: |
+| 0.03 | 100.00% | 23.20% | 100.00% |
+| 0.06 | 100.00% | 22.31% | 99.74% |
+| 0.12 | 100.00% | 21.85% | 95.20% |
+| 0.20 | 99.91% | 20.51% | 81.68% |
+
+The unseen-view whole-permutation exact accuracy of the invariant matcher
+falls from **100%** at noise 0.03 to **57.55%** at noise 0.20.
+
+This experiment distinguishes two different notions of generalization:
+fresh permutations under previously learned representations (v0.10), versus
+fresh observation-view transforms (v0.11). The learned fixed-view linear
+projections fail the second, while a distance-based analytical invariant
+matches the same point set across different orthogonal views.
+
+The analytical controller assumes a common complete latent point set and
+a distance-preserving observation transform; its success cannot be extrapolated
+to arbitrary nonlinear encoders or semantic matching.
+
+Per-seed machine-readable output: the workflow artifact `v11-ci-reference`.
