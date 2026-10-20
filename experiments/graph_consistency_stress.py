@@ -170,7 +170,7 @@ def main():
             f"{values['slot_accuracy_mean']:.4f}  "
             f"{values['permutation_exact_mean']:.4f}  "
             f"{values['top50_exact_mean']:.4f}  "
-            f"{values['confidence_mean']:.4f}"
+            f"{values['confidence_mean_mean']:.4f}"
         )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(
