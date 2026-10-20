@@ -31,6 +31,12 @@ from .evaluation import (
     transport_metrics,
 )
 from .injection import MultiPortInjector, PortSelector
+from .graph_routing import (
+    GraphConsistencyRouter,
+    graph_assignment_cost,
+    normalized_distances,
+    refine_geometric_assignment,
+)
 from .invariant_router import (
     InvariantPermutationController,
     distance_fingerprints,
@@ -101,6 +107,10 @@ __all__ = [
     "MatchingPermutationController",
     "MultiPortInjector",
     "PortSelector",
+    "GraphConsistencyRouter",
+    "graph_assignment_cost",
+    "normalized_distances",
+    "refine_geometric_assignment",
     "InvariantPermutationController",
     "QuantileInvariantPermutationController",
     "bidirectional_hard_negative_margin",
@@ -162,4 +172,4 @@ __all__ = [
     "sequential_monomial_scan",
 ]
 
-__version__ = "0.14.0"
+__version__ = "0.15.0"

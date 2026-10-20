@@ -14,7 +14,7 @@ Route, Hold and multi-port injection provide configurable dynamic behavior.
 
 ![FlowCore pipeline: encoding, injection, control, structured operators, parallel scan and readout](assets/flowcore-pipeline.svg)
 
-> **Research status — v0.14.0.** The figures below are *real recorded CI reference
+> **Research status — v0.15.0.** The figures below are *real recorded CI reference
 > measurements on synthetic tasks*, not fabricated projections. They do not
 > establish AGI capabilities, generic sequence-model superiority, GPU speedups,
 > or effectiveness on natural-language/vision tasks.
@@ -328,6 +328,41 @@ python experiments/global_assignment_stress.py --steps 350 --seeds 0,1,2
 
 See [v0.14 report](docs/V0_14_REPORT.md) and
 [all result provenance](docs/RESULTS.md).
+
+## v0.15 — Graph-consistent routing and selective confidence
+
+v0.12–v0.14 showed that progressively more elaborate *learning losses* did not
+reliably beat simple analytic geometry. v0.15 instead tests a **different
+representation of geometric evidence**:
+
+1. Begin with the zero-parameter sorted-distance fingerprint assignment.
+2. Improve the *whole* route by locally swapping source assignments to
+   minimize the mismatch of **full pairwise distance matrices**.
+3. Test a fixed short-edge reliability weight against the unweighted graph
+   objective. No true test-time noise sigma is supplied.
+4. Measure selective correctness among the 50% most-confident routes, ranked by
+   normalized local-swap stability.
+
+The confidence score is **not calibrated P(correct)**, and rejecting half of
+the routes does not fix the rejected predictions. The local 2-opt search
+has no global optimality guarantee and is intended only for small modules.
+
+Methods evaluated on identical synthetic batches:
+
+- original fingerprint matching;
+- unweighted graph-consistency refinement;
+- fixed short-edge-weighted graph-consistency refinement.
+
+Evaluation includes unseen independent observation bases, M=6 and M=8, four
+noise levels and three random seeds. All variants have **zero learned
+parameters**. The Monomial exact scan operator is unchanged.
+
+```bash
+python experiments/graph_consistency_stress.py --seeds 0,1,2
+```
+
+CI measurements and graphs will be posted here after the experiment has run.
+See [the v0.15 protocol](docs/V0_15_REPORT.md).
 
 ## Scope and next research questions
 

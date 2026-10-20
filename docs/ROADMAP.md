@@ -151,3 +151,14 @@ Validation added in v0.5:
 - Preserve two zero-trainable-parameter analytic geometric baselines.
 - Report unseen M=8, noise sweep and all per-seed whole-permutation metrics.
 - Avoid declaring gains from a single noise condition or tiny differences.
+
+## Phase 3F — noise-robust geometry and route confidence (v0.15)
+
+- Swap-refine full pairwise geometric consistency after the fingerprint router.
+- Compare unweighted refinement with a fixed normalized short-edge reliability
+  weighting, without exposing test noise as oracle side information.
+- Introduce *ranking confidence* from the gap to the nearest local-swap rival;
+  test selective whole-route accuracy at 50% fixed coverage.
+- Report all metrics on identical three-seed M6/M8 noise-sweep samples.
+- Never claim statistically calibrated probabilities or globally optimal graph
+  matching from this local deterministic method.

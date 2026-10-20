@@ -93,6 +93,24 @@ jobs:
             --max-exact-modules 8 \
             --device cpu \
             --output results/v14_ci_reference.json
+      - name: v0.15 geometric graph consistency and confidence
+        if: matrix.python-version == '3.11'
+        run: |
+          python experiments/graph_consistency_stress.py \
+            --seeds 0,1,2 \
+            --modules 6,8 \
+            --noises 0.03,0.12,0.20,0.30 \
+            --eval-batch 128 \
+            --rounds 5 \
+            --reliability-floor 0.15 \
+            --device cpu \
+            --output results/v15_ci_reference.json
+      - name: Upload v0.15 graph consistency result
+        if: matrix.python-version == '3.11'
+        uses: actions/upload-artifact@v4
+        with:
+          name: v15-ci-reference
+          path: results/v15_ci_reference.json
       - name: Upload v0.14 global assignment result
         if: matrix.python-version == '3.11'
         uses: actions/upload-artifact@v4
