@@ -329,40 +329,55 @@ python experiments/global_assignment_stress.py --steps 350 --seeds 0,1,2
 See [v0.14 report](docs/V0_14_REPORT.md) and
 [all result provenance](docs/RESULTS.md).
 
-## v0.15 — Graph-consistent routing and selective confidence
+## v0.15 — Full-graph geometry and confidence-selected routing
 
-v0.12–v0.14 showed that progressively more elaborate *learning losses* did not
-reliably beat simple analytic geometry. v0.15 instead tests a **different
-representation of geometric evidence**:
+![Three zero-parameter methods under descriptor noise](assets/v15-graph-routing.svg)
 
-1. Begin with the zero-parameter sorted-distance fingerprint assignment.
-2. Improve the *whole* route by locally swapping source assignments to
-   minimize the mismatch of **full pairwise distance matrices**.
-3. Test a fixed short-edge reliability weight against the unweighted graph
-   objective. No true test-time noise sigma is supplied.
-4. Measure selective correctness among the 50% most-confident routes, ranked by
-   normalized local-swap stability.
+The former fingerprint router compared each module's **sorted distance
+signature**. The new router instead refines that initial permutation to
+minimize distortion of the **complete pairwise distance graph**, accepting
+only improving two-node swaps. All methods are **zero-parameter**, tested
+on the same held-out samples, with independently randomized observation
+rotations, translations and scales.
 
-The confidence score is **not calibrated P(correct)**, and rejecting half of
-the routes does not fix the rejected predictions. The local 2-opt search
-has no global optimality guarantee and is intended only for small modules.
+| M | Noise | Fingerprint | Graph unweighted | Short-edge weighted |
+| ---: | ---: | ---: | ---: | ---: |
+| 6 | 0.03 | 100.00% | 100.00% | 100.00% |
+| 6 | 0.12 | 94.14% | 97.61% | 97.53% |
+| 6 | 0.20 | 78.60% | 88.63% | 88.89% |
+| 6 | 0.30 | 61.20% | 72.53% | 72.35% |
+| 8 | 0.03 | 99.93% | 100.00% | 100.00% |
+| 8 | 0.12 | 94.89% | 99.67% | 99.67% |
+| 8 | 0.20 | 75.72% | 92.06% | 91.86% |
+| 8 | 0.30 | 54.69% | 67.81% | 67.87% |
 
-Methods evaluated on identical synthetic batches:
+*Hard slot accuracy, three-seed CI means, 128 examples per seed per condition.*
 
-- original fingerprint matching;
-- unweighted graph-consistency refinement;
-- fixed short-edge-weighted graph-consistency refinement.
+At unseen **M=8 / noise=0.20**, full-graph unweighted refinement improves
+slot accuracy **75.72% → 92.06%** and whole-permutation exact accuracy
+**35.68% → 83.85%**. Short-edge weighting does not consistently improve
+these results.
 
-Evaluation includes unseen independent observation bases, M=6 and M=8, four
-noise levels and three random seeds. All variants have **zero learned
-parameters**. The Monomial exact scan operator is unchanged.
+**Selective confidence:** At M=8 / noise 0.20, ranking routes by the
+normalized gap to the nearest one-swap alternative produces **98.44%**
+whole-permutation correctness among the *most-confident 50%*, versus 83.85%
+over all routes. The other 50% are rejected, not corrected.
+This is a **ranking heuristic**, not a probability-calibrated confidence
+estimate.
+
+The method still uses small-M hard assignment and local combinatorial
+optimization; it does not demonstrate exact global graph matching,
+large-scale GPU throughput or real-world semantic routing.
+
+[CI run](https://github.com/ZJY-HSBL/Flowcore/actions/runs/39359619263) ·
+[Per-seed JSON artifact](https://github.com/ZJY-HSBL/Flowcore/actions/runs/39359619263/artifacts/12237160797)
 
 ```bash
-python experiments/graph_consistency_stress.py --seeds 0,1,2
+python experiments/graph_consistency_stress.py --seeds 0,1,2 \
+ --modules 6,8 --noises 0.03,0.12,0.20,0.30 --eval-batch 128
 ```
 
-CI measurements and graphs will be posted here after the experiment has run.
-See [the v0.15 protocol](docs/V0_15_REPORT.md).
+[Report](docs/V0_15_REPORT.md) · [Provenance](docs/RESULTS.md)
 
 ## Scope and next research questions
 

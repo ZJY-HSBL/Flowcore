@@ -18,6 +18,7 @@ FIGURES = [
     "assets/v12-structural-metric.svg",
     "assets/v13-loss-ablation.svg",
     "assets/v14-global-margin.svg",
+    "assets/v15-graph-routing.svg",
 ]
 
 
@@ -89,3 +90,11 @@ def test_reference_dataset_has_consistent_provenance_and_values():
     assert v14["conditions"]["6"]["global_margin"]["slot_accuracy_pct"][2] == 77.43
     assert v14["conditions"]["8"]["global_margin"]["slot_accuracy_pct"][2] == 74.41
     assert v14["conditions"]["8"]["uniform_quantile"]["slot_accuracy_pct"][2] == 76.63
+
+
+def test_v15_graph_result_provenance():
+    data = json.loads((ROOT / "results" / "ci_reference_summary.json").read_text())
+    assert data["v15"]["conditions"]["8"]["fingerprint"]["slot_accuracy_pct"][2] == 75.72
+    assert data["v15"]["conditions"]["8"]["graph_unweighted"]["slot_accuracy_pct"][2] == 92.06
+    assert data["v15"]["conditions"]["8"]["graph_unweighted"]["permutation_exact_pct"][2] == 83.85
+    assert data["v15"]["conditions"]["8"]["graph_unweighted"]["top50_exact_pct"][2] == 98.44

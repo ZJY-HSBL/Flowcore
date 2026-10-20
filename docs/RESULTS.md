@@ -289,3 +289,32 @@ python experiments/global_assignment_stress.py \
 ```
 
 CI: 56 tests passed on Python 3.10/3.11/3.12.
+
+## Verified CI measurements — October 20, 2026
+
+The first CI reference failed due to a reporting-key typo, corrected in
+`ec7692f`. The subsequently completed
+[CI run 39359619263](https://github.com/ZJY-HSBL/Flowcore/actions/runs/39359619263)
+passed across Python 3.10–3.12.
+
+Three-seed hard slot accuracy (%):
+
+| M | Noise | Fingerprint | Graph unweighted | Short-edge weighted |
+| ---: | ---: | ---: | ---: | ---: |
+| 6 | 0.03 | 100.00% | 100.00% | 100.00% |
+| 6 | 0.12 | 94.14% | 97.61% | 97.53% |
+| 6 | 0.20 | 78.60% | 88.63% | 88.89% |
+| 6 | 0.30 | 61.20% | 72.53% | 72.35% |
+| 8 | 0.03 | 99.93% | 100.00% | 100.00% |
+| 8 | 0.12 | 94.89% | 99.67% | 99.67% |
+| 8 | 0.20 | 75.72% | 92.06% | 91.86% |
+| 8 | 0.30 | 54.69% | 67.81% | 67.87% |
+
+At unseen M8/noise 0.20, exact whole-permutation accuracy:
+fingerprint 35.68%, unweighted graph 83.85%, shortedge graph 83.59%.
+Unweighted graph exactness among top-confidence 50%: 98.44% at M8/noise 0.20,
+versus 83.85% over all routes. The selection *rejects half the routes*.
+The score is not a calibrated probability, nor is the 2-opt method a global
+optimum guarantee. Test noise was not supplied to the controller.
+
+[Per-seed JSON reference artifact](https://github.com/ZJY-HSBL/Flowcore/actions/runs/39359619263/artifacts/12237160797)
